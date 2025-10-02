@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentación Dashboard Financiero (HTML Local)</title>
+    <!-- Carga de Tailwind CSS: Usando el CDN oficial para mayor estabilidad -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carga de Lucide Icons (similar a Font Awesome) -->
+    <script type="module">
+        import { createIcons, icons } from 'https://cdn.jsdelivr.net/npm/lucide@latest/dist/esm/lucide.js';
+        window.icons = icons;
+        window.createLucideIcons = () => createIcons({ icons, attrs: { class: 'lucide' } });
+        window.addEventListener('load', window.createLucideIcons);
+    </script>
+    <style>
+        /* Estilo base para la fuente y el fondo oscuro */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0d0d; /* Fondo muy oscuro, casi negro */
+        }
+        /* Estilo para el efecto de neón en el encabezado */
+        .neon-glow {
+            text-shadow: 0 0 5px #3b82f6, 0 0 10px #3b82f6, 0 0 15px #2563eb;
+        }
+        /* Clase para las sombras neón de las tarjetas (paleta de colores) */
+        .shadow-green { box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); }
+        .shadow-blue { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+        .shadow-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+        .shadow-yellow { box-shadow: 0 0 15px rgba(252, 211, 77, 0.5); }
+        .shadow-teal { box-shadow: 0 0 15px rgba(20, 184, 166, 0.5); }
+        .shadow-purple { box-shadow: 0 0 15px rgba(147, 51, 234, 0.5); }
+
+        .slide-card-hover:hover {
+            box-shadow: 0 0 40px rgba(37, 99, 235, 0.4);
+        }
+
+        /* ESTILOS DE TRANSICIÓN */
+        .slide-transition {
+            opacity: 0;
+            /* Aplica una transición suave de 500ms al cambiar la opacidad */
+            transition: opacity 0.5s ease-in-out; 
+        }
+        .slide-transition-active {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body class="text-white min-h-screen p-4 md:p-8 flex flex-col">
+
+    <!-- Header -->
+    <header id="header" class="mb-6 border-b border-gray-700 pb-4 flex justify-between items-center max-w-4xl mx-auto w-full">
+        <h1 class="text-2xl font-extrabold flex items-center neon-glow">
+            <svg class="lucide w-6 h-6 mr-2 text-blue-400" data-lucide="briefcase"></svg>
+            Presentación del Proyecto
+        </h1>
+        <div id="slide-indicator" class="text-md text-gray-400 font-medium">
+            Diapositiva 1 de 5
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow flex items-stretch justify-center">
+        <div class="w-full max-w-4xl min-h-[500px] flex">
+            <!-- Contenedor de la diapositiva con la clase inicial de transición -->
+            <div id="slide-container" class="w-full slide-transition"></div>
+        </div>
+    </main>
+
+    <!-- Footer / Navigation Controls -->
+    <footer class="mt-6 flex justify-between items-center max-w-4xl mx-auto w-full">
+        <button
+            id="prev-btn"
+            onclick="navigateSlide(-1)"
+            class="flex items-center px-4 py-2 bg-gray-700 text-white font-semibold rounded-full shadow-lg border border-gray-600 transition duration-300 hover:bg-gray-600 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled
+        >
+            <svg class="lucide w-5 h-5 mr-2" data-lucide="arrow-left"></svg>
+            Anterior
+        </button>
+
+        <div id="dots-container" class="flex space-x-2">
+            <!-- Los puntos de navegación se inyectarán aquí -->
+        </div>
+
+        <button
+            id="next-btn"
+            onclick="navigateSlide(1)"
+            class="flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-full shadow-lg transition duration-300 hover:bg-blue-700 hover:shadow-[0_0_15px_rgba(59,130,246,0.6)]"
+            style="box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);"
+        >
+            Siguiente
+            <svg class="lucide w-5 h-5 ml-2" data-lucide="arrow-right"></svg>
+        </button>
+    </footer>
+
+    <!-- JavaScript para la lógica de la presentación -->
+    <script>
+        let currentSlide = 0;
+        
+        // Contenido de las diapositivas (total 5)
+        const slidesContent = [
+            {
+                title: "Propuesta de Dashboard de Gestión",
+                subtitle: "Unificando la visibilidad de OPEX, CAPEX e ITAM",
+                icon: "aperture",
+                content: `
+                    <h3 class="text-xl font-semibold text-blue-400 mb-4">El Problema y la Solución</h3>
+                    <div class="space-y-4">
+                        <p class="p-4 bg-gray-700/70 border-l-4 border-red-500 rounded-lg shadow-lg">
+                            **El Problema:** La información de Operaciones, Inversiones y Activos de TI está fragmentada, dificultando la toma de decisiones ágil y la detección de riesgos.
+                        </p>
+                        <p class="p-4 bg-gray-700/70 border-l-4 border-blue-500 rounded-lg shadow-lg">
+                            **Nuestra Solución:** Un **Dashboard de Gestión en tiempo real** que unifica estas áreas, permitiendo **monitorear el desempeño** y **detectar riesgos** inmediatamente desde una fuente única.
+                        </p>
+                    </div>
+                `
+            },
+            {
+                title: "Indicadores Clave de OPEX (Gastos Operacionales)",
+                subtitle: "Monitoreo del Consumo y Variación Presupuestaria",
+                icon: "dollar-sign",
+                kpis: [
+                    { name: "Presupuesto Mensual", description: "Monto total asignado para el mes. Base de control.", color: "bg-green-600", icon: "gauge", glowClass: "shadow-green" },
+                    { name: "Gasto Real Mensual", description: "Consumo efectivo de recursos operacionales (ej. salarios, arriendos).", color: "bg-blue-600", icon: "briefcase", glowClass: "shadow-blue" },
+                    { name: "Variación vs Presupuesto", description: "Mide la diferencia ($) entre lo gastado y lo presupuestado. Alerta inmediata sobre excedentes.", color: "bg-red-600", icon: "trending-up", glowClass: "shadow-red" },
+                ],
+                content: `
+                    <div class="mt-6 text-gray-300">
+                        <p class="text-blue-300 font-semibold mb-2">Función Principal:</p>
+                        <p>Alertar inmediatamente si se está por encima o por debajo del presupuesto para ajustar la gestión de costos por concepto y proveedor, impulsando la eficiencia operativa.</p>
+                    </div>
+                `
+            },
+            {
+                title: "Indicadores Clave de CAPEX (Inversiones de Capital)",
+                subtitle: "Seguimiento y Ejecución de Proyectos de Inversión",
+                icon: "target",
+                kpis: [
+                    { name: "Presupuesto Mensual / Real", description: "Ejecución financiera de proyectos grandes (ej. nuevas tiendas, infraestructura IT).", color: "bg-green-600", icon: "corner-up-right", glowClass: "shadow-green" },
+                    { name: "Calendario Proyectado", description: "Visualización de la inversión planificada a futuro por trimestre o mes.", color: "bg-yellow-600", icon: "clock", glowClass: "shadow-yellow" },
+                ],
+                content: `
+                    <div class="mt-6 text-gray-300">
+                        <p class="text-blue-300 font-semibold mb-2">Función Principal:</p>
+                        <p>Asegurar que la inversión de capital se ejecute en el tiempo y monto previstos, minimizando retrasos en la expansión o modernización de la empresa.</p>
+                    </div>
+                `
+            },
+            {
+                title: "Indicadores Clave de ITAM (Gestión de Activos de TI)",
+                subtitle: "Eficiencia, Riesgo y Costo del Inventario Tecnológico",
+                icon: "cpu",
+                kpis: [
+                    { name: "Precisión de Inventario (%)", description: "Mide la exactitud de los registros físicos de activos de TI.", color: "bg-blue-600", icon: "gauge", glowClass: "shadow-blue" },
+                    { name: "Activos EOL (%)", description: "Porcentaje de hardware que ha llegado a su Fin de Vida Útil (Riesgo).", color: "bg-red-600", icon: "cpu", glowClass: "shadow-red" },
+                    { name: "Costo Total de Propiedad (TCO)", description: "Costo total del activo durante toda su vida útil (compra + operación).", color: "bg-teal-500", icon: "dollar-sign", glowClass: "shadow-teal" },
+                    { name: "MTBF / Uso Capacidad", description: "Tiempo medio entre fallas y porcentaje de uso de sistemas críticos.", color: "bg-purple-600", icon: "server", glowClass: "shadow-purple" },
+                ],
+                content: `
+                    <div class="mt-6 text-gray-300">
+                        <p class="text-blue-300 font-semibold mb-2">Función Principal:</p>
+                        <p>Planificar reemplazos, gestionar el riesgo de seguridad (EOL) y optimizar el gasto de capital futuro basándose en el TCO y la eficiencia operativa.</p>
+                    </div>
+                `
+            },
+            {
+                title: "Tecnologías Clave del Dashboard",
+                subtitle: "Una Arquitectura Ágil y en Tiempo Real",
+                icon: "aperture",
+                content: `
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                        <div class="p-5 bg-gray-700 rounded-xl shadow-xl transition-all duration-300 hover:shadow-[0_0_25px_rgba(37,99,235,0.6)]">
+                            <h4 class="font-bold text-xl text-blue-400">Frontend (App Web)</h4>
+                            <p class="text-sm text-gray-300">**React (JSX) y Tailwind CSS.** Interfaz modular, rápida y totalmente responsive para cualquier dispositivo.</p>
+                        </div>
+                        <div class="p-5 bg-gray-700 rounded-xl shadow-xl transition-all duration-300 hover:shadow-[0_0_25px_rgba(252,211,77,0.6)]">
+                            <h4 class="font-bold text-xl text-yellow-400">Base de Datos (Fuente de la Verdad)</h4>
+                            <p class="text-sm text-gray-300">**Google Cloud Firestore (NoSQL).** Permite la **sincronización en tiempo real** (<code>onSnapshot</code>) para que los gráficos se actualicen al instante (Modelo No-Code).</p>
+                        </div>
+                        <div class="p-5 bg-gray-700 rounded-xl shadow-xl col-span-2 transition-all duration-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.6)]">
+                            <h4 class="font-bold text-xl text-green-400">Visualización</h4>
+                            <p class="text-sm text-gray-300">**Chart.js** para gráficos y **Lucide Icons** para la iconografía profesional.</p>
+                        </div>
+                    </div>
+                `
+            }
+        ];
+
+        const totalSlides = slidesContent.length;
+
+        // Función para renderizar la tarjeta de la diapositiva
+        function renderSlideCard(slide) {
+            let kpisHtml = '';
+            if (slide.kpis) {
+                kpisHtml = `
+                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                        ${slide.kpis.map(kpi => `
+                            <div 
+                                class="${kpi.color} text-white p-5 rounded-xl shadow-lg transition duration-500 transform hover:scale-[1.05] ${kpi.glowClass}"
+                            >
+                                <div class="flex items-center mb-2">
+                                    <svg class="lucide w-6 h-6 mr-2" data-lucide="${kpi.icon}"></svg>
+                                    <h4 class="text-xl font-bold">${kpi.name}</h4>
+                                </div>
+                                <p class="text-sm opacity-90">${kpi.description}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            // Uso de innerHTML para renderizar todo el contenido de la diapositiva
+            return `
+                <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full flex flex-col justify-between border border-gray-700 transform transition-all duration-500 slide-card-hover">
+                    <div>
+                        <div class="flex items-center text-blue-400 mb-4">
+                            <svg class="lucide w-8 h-8 mr-3" data-lucide="${slide.icon}"></svg>
+                            <h2 class="text-3xl font-extrabold text-white">${slide.title}</h2>
+                        </div>
+                        <p class="text-xl text-gray-400 border-b border-gray-700 pb-4 mb-6">${slide.subtitle}</p>
+
+                        <div class="text-gray-200 text-lg">
+                            ${slide.content}
+                        </div>
+
+                        ${kpisHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Función principal para dibujar la diapositiva actual con transición
+        function drawSlide(index) {
+            const slideContainer = document.getElementById('slide-container');
+            const slideIndicator = document.getElementById('slide-indicator');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+
+            // 1. Iniciar la transición de salida (Fade out: la opacidad se reduce a 0)
+            slideContainer.classList.remove('slide-transition-active');
+            
+            // 2. Esperar 500ms (tiempo de la transición CSS) antes de cambiar el contenido
+            setTimeout(() => {
+                const slide = slidesContent[index];
+                
+                // 3. Cambiar el contenido HTML
+                slideContainer.innerHTML = renderSlideCard(slide);
+
+                // Actualizar indicador y botones
+                slideIndicator.textContent = `Diapositiva ${index + 1} de ${totalSlides}`;
+                prevBtn.disabled = index === 0;
+                nextBtn.disabled = index === totalSlides - 1;
+
+                // Actualizar el efecto de sombra del botón Siguiente
+                nextBtn.style.boxShadow = index === totalSlides - 1 
+                    ? 'none' 
+                    : '0 0 15px rgba(59, 130, 246, 0.4)';
+
+                // Re-crear íconos de Lucide
+                if (window.createLucideIcons) {
+                    window.createLucideIcons();
+                }
+
+                // Actualizar puntos de navegación
+                drawDots(index);
+
+                // 4. Iniciar la transición de entrada (Fade in: la opacidad vuelve a 1)
+                slideContainer.classList.add('slide-transition-active');
+            }, 500); 
+        }
+
+        // Función para los puntos de navegación
+        function drawDots(activeIndex) {
+            const dotsContainer = document.getElementById('dots-container');
+            dotsContainer.innerHTML = '';
+            slidesContent.forEach((_, index) => {
+                const dot = document.createElement('div');
+                dot.className = `w-3 h-3 rounded-full transition-colors duration-200 cursor-pointer ${
+                    index === activeIndex 
+                        ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,1)]' 
+                        : 'bg-gray-600 hover:bg-gray-500'
+                }`;
+                dot.onclick = () => {
+                    currentSlide = index;
+                    drawSlide(currentSlide);
+                };
+                dotsContainer.appendChild(dot);
+            });
+        }
+
+        // Función para navegar entre diapositivas
+        window.navigateSlide = function(direction) {
+            const newIndex = currentSlide + direction;
+            if (newIndex >= 0 && newIndex < totalSlides) {
+                currentSlide = newIndex;
+                drawSlide(currentSlide);
+            }
+        };
+
+        // Inicialización al cargar la página
+        window.onload = function() {
+            // Se asegura de que la primera diapositiva se dibuje y active la clase de transición
+            drawSlide(currentSlide);
+        };
+        
+        // CORRECCIÓN: Si el drawSlide tiene setTimeout, debemos asegurar la primera aparición
+        // Nota: La llamada inicial a drawSlide ya maneja la transición de entrada (paso 4).
+    </script>
+</body>
+</html>
