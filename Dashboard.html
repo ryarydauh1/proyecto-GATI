@@ -3,1875 +3,422 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Financiero y Gestión de Activos (Funcional con Lucide)</title>
-    
-    <!-- Carga de Tailwind CSS para la estructura y el diseño base -->
+    <title>Inventario TI - Gestión Fiscal e Inversión</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Incluir Chart.js para los gráficos (Versión 4.4) -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- Incluir Lucide Icons para la iconografía moderna y profesional -->
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script> 
-
-    <!-- CÓDIGO CSS INTEGRADO (Paleta Azul Corporativa - Estilo Moderno Oscuro) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Variables y Reset Básico */
-        :root {
-            /* Colores Base Dark Mode */
-            --background-color: #151C2C; 
-            --card-background: #1F2A40; 
-            --text-color-high: #FFFFFF; /* Títulos en blanco para alto contraste */
-            --text-color-low: #f0f0f0; 
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.6); 
-
-            /* Colores de Acento CORPORATIVOS (Azul Farmatodo) */
-            --brand-main: #003399; 
-            --brand-accent: #0077B6; 
-            
-            /* Colores de Estado Estándar */
-            --secondary-color: #2ecc71; 
-            --danger-color: #e74c3c; 
-            --warning-color: #f39c12; 
-            --itam-color: #5E6D8F; 
-            --risk-color: #ff6b6b; 
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--background-color);
-            color: var(--text-color-low);
-            line-height: 1.6;
-            transition: background-color 0.3s;
-        }
-        
-        /* Encabezado */
-        header {
-            background-color: var(--brand-main);
-            color: white;
-            padding: 1.5rem 0; 
-            text-align: center;
-            box-shadow: var(--shadow);
-            border-bottom: 2px solid var(--brand-accent);
-        }
-        
-        .header-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-
-        /* Reversión: Logo original (azul oscuro, sin filtro CSS) */
-        .farmatodo-logo {
-            width: 150px; 
-            height: auto;
-            margin-bottom: 1rem;
-        }
-
-        header h1 {
-            margin-bottom: 0.5rem;
-            font-size: 2rem;
-            color: var(--text-color-low);
-        }
-
-        /* Contenedor Principal */
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-        }
-
-        /* --- Estilos de Títulos de Sección (BLANCO ALTO CONTRASTE) --- */
-        .section-title {
-            margin-bottom: 1.5rem; 
-            padding-bottom: 0.5rem;
-            font-size: 1.5rem; 
-            font-weight: 700; 
-            color: var(--text-color-high) !important; /* BLANCO PURO */
-        }
-
-        .opex-title {
-            border-bottom: 2px solid var(--brand-main);
-        }
-
-        .capex-title {
-            border-bottom: 2px solid var(--brand-accent);
-        }
-
-        .itam-title {
-            border-bottom: 2px solid var(--itam-color);
-        }
-
-        /* Títulos de ITAM secundarios (también en blanco) */
-        .itam-subtitle {
-            margin-top: 1.5rem; 
-            margin-bottom: 1rem; 
-            border-bottom: 1px solid var(--itam-color); 
-            padding-bottom: 0.5rem;
-            font-size: 1.25rem; 
-            font-weight: 700;
-            color: var(--text-color-high) !important; /* BLANCO PURO */
-        }
-        /* --- FIN Estilos de Títulos de Sección --- */
-
-        /* --- Estilos del Suiche/Pestañas --- */
-        .tab-controls {
-            display: flex;
-            flex-wrap: wrap; 
-            justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        .tab-button {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: var(--shadow);
-            min-width: 180px; 
-            letter-spacing: 0.5px;
-            display: flex; /* Para alinear el icono */
-            align-items: center;
-            justify-content: center;
-            gap: 0.75rem;
-        }
-        
-        /* Asegura que los íconos Lucide se vean correctamente */
-        .tab-button [data-lucide] {
-            width: 24px;
-            height: 24px;
-        }
-
-
-        /* Estilo base inactivo */
-        .tab-button:not(.active) {
-            background-color: var(--card-background);
-            color: #aaa;
-            border: 2px solid #333;
-            opacity: 0.8;
-        }
-        
-        /* Estilo activo OPEX (Azul Marino Principal) */
-        #tab-opex.active {
-            background-color: var(--brand-main);
-            color: white;
-            border: 2px solid var(--brand-main);
-            box-shadow: 0 0 15px rgba(0, 51, 153, 0.8);
-        }
-        
-        /* Estilo activo CAPEX (Azul Claro de Acento) */
-        #tab-capex.active {
-            background-color: var(--brand-accent);
-            color: white;
-            border: 2px solid var(--brand-accent);
-            box-shadow: 0 0 15px rgba(0, 119, 182, 0.8);
-        }
-
-        /* Estilo activo ITAM (Gris Azulado) */
-        #tab-itam.active {
-            background-color: var(--itam-color);
-            color: white;
-            border: 2px solid var(--itam-color);
-            box-shadow: 0 0 15px rgba(94, 109, 143, 0.8);
-        }
-        /* --- FIN Estilos del Suiche/Pestañas --- */
-
-        /* Tarjetas KPI (Indicadores Clave de Rendimiento) */
-        .kpi-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .kpi-card {
-            background-color: var(--card-background);
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            transition: transform 0.3s ease;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .kpi-card.opex-kpi {
-            border-top: 5px solid var(--brand-main); 
-        }
-        .kpi-card.capex-kpi {
-            border-top: 5px solid var(--brand-accent); 
-        }
-        .kpi-card.itam-kpi {
-            border-top: 5px solid var(--itam-color); 
-        }
-        
-        .kpi-card:hover {
-             transform: translateY(-5px); 
-             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.7);
-        }
-
-        .kpi-card h2 {
-            font-size: 1rem;
-            color: var(--text-color-high); 
-            margin-bottom: 0.5rem;
-            font-weight: 400;
-        }
-
-        .kpi-card .value {
-            font-size: 2.5rem; 
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            color: var(--text-color-high); 
-        }
-        
-        /* --- Estilos de Controles de Filtro --- */
-        .filter-controls {
-            display: flex;
-            flex-wrap: wrap; 
-            gap: 1rem 2rem;
-            margin-bottom: 2rem;
-            padding: 1rem;
-            background-color: rgba(31, 42, 64, 0.7); 
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            align-items: center;
-        }
-
-        #itam-content .filter-controls {
-            background-color: rgba(94, 109, 143, 0.1); 
-        }
-
-        .filter-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .filter-controls label {
-            font-weight: 600;
-            color: var(--brand-accent);
-            font-size: 0.9rem;
-        }
-
-        .filter-controls select {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--brand-accent);
-            border-radius: 6px;
-            font-size: 1rem;
-            cursor: pointer;
-            background-color: var(--card-background);
-            color: var(--text-color-low);
-            appearance: none; 
-            min-width: 150px;
-            transition: border-color 0.2s;
-        }
-
-        /* Indicadores de Cambio/Ahorro */
-        .change {
-            font-size: 1rem;
-            font-weight: bold;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            display: inline-block;
-        }
-
-        .saved {
-            color: var(--secondary-color); 
-            background-color: rgba(46, 204, 113, 0.15);
-        }
-
-        .overspent {
-            color: var(--danger-color); 
-            background-color: rgba(231, 76, 60, 0.15);
-        }
-
-        .on-target {
-            color: var(--brand-accent);
-            background-color: rgba(0, 119, 182, 0.15);
-        }
-
-        /* Sección de Gráficos */
-        .charts-section h2 {
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 0.5rem;
-            color: var(--text-color-low);
-            font-weight: 600;
-        }
-
-        /* Grid para los gráficos de ITAM */
-        .itam-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .chart-container {
-            background-color: var(--card-background);
-            padding: 1.5rem;
-            border-radius: 8px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .chart-container canvas {
-            max-height: 350px;
-        }
-
-        .chart-container h3 {
-            text-align: center;
-            margin-bottom: 1rem;
-            color: var(--text-color-low); 
-            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
-            padding-bottom: 0.5rem;
-            font-weight: 400;
-        }
-
-        /* ESTILOS ESPECÍFICOS PARA LA TABLA CAPEX (Dark Mode) */
-        .schedule-table-container {
-            max-width: 100%;
-            overflow-x: auto; 
-            margin-bottom: 2rem; 
-        }
-
-        .capex-schedule-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.9rem;
-            min-width: 800px; 
-        }
-
-        .capex-schedule-table th, .capex-schedule-table td {
-            border: 1px solid #444; 
-            padding: 0.75rem 0.5rem;
-            text-align: right;
-        }
-
-        .capex-schedule-table th {
-            background-color: var(--brand-accent);
-            color: white; 
-            font-weight: 700;
-            position: sticky; 
-            left: 0; 
-            z-index: 10;
-        }
-
-        .capex-schedule-table td:first-child {
-            text-align: left;
-            font-weight: 500;
-            background-color: #2a3854; 
-            position: sticky;
-            left: 0;
-            z-index: 5;
-            border-right: 2px solid var(--brand-accent); 
-        }
-
-        .capex-schedule-table tr:last-child th,
-        .capex-schedule-table tr:last-child td {
-            font-weight: bold;
-            background-color: var(--brand-main); 
-            color: white;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .farmatodo-blue { background-color: #004a99; }
+        .table-container { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-radius: 0.75rem; overflow: hidden; background: white; }
+        .tab-btn.active { border-bottom: 3px solid #004a99; color: #004a99; font-weight: 700; }
+        .filter-btn.active { background-color: #004a99; color: white; }
+        .sticky-col { position: sticky; left: 0; background-color: white; z-index: 10; border-right: 1px solid #e5e7eb; }
+        .header-sticky-col { position: sticky; left: 0; background-color: #004a99; z-index: 20; }
     </style>
 </head>
-<body>
-    <header>
-        <div class="header-content">
-            <!-- LOGO ORIGINAL (sin filtro CSS) -->
-            <img src="https://www.farmatodo.com.ve/assets/svg/logo-farmatodo2.svg" alt="Logo Farmatodo" class="farmatodo-logo">
-            
-            <h1>Reporte Detallado de Presupuesto (OPEX vs CAPEX)</h1>
-            <p>Análisis de Gasto Real y Gestión de Activos de Hardware (HAM)</p>
-        </div>
-    </header>
+<body class="p-4 md:p-8">
 
-    <main class="container">
-        <!-- --- SUICHE / CONTROLES DE PESTAÑAS (Iconos Lucide) --- -->
-        <div class="tab-controls">
-            <button id="tab-opex" class="tab-button" onclick="showTab('opex')">
-                <span data-lucide="wallet" class="h-6 w-6"></span> OPEX
-            </button>
-            <button id="tab-capex" class="tab-button" onclick="showTab('capex')">
-                <span data-lucide="banknote" class="h-6 w-6"></span> CAPEX
-            </button>
-            <button id="tab-itam" class="tab-button" onclick="showTab('itam')">
-                <span data-lucide="server" class="h-6 w-6"></span> ITAM (Hardware)
-            </button>
-        </div>
-        <!-- --------------------------------------- -->
-
-        <!-- --- CONTENIDO OPEX --- -->
-        <div id="opex-content" class="tab-content hidden">
-            <!-- Título de alto contraste -->
-            <h2 class="section-title opex-title">Indicadores Clave OPEX (Gastos Operacionales)</h2>
-            
-            <!-- Resumen de Métricas Clave OPEX -->
-            <section class="kpi-cards" id="opexKpis">
-                <div class="kpi-card opex-kpi">
-                    <h2>Presupuesto OPEX Total</h2>
-                    <p class="value" id="opexBudget">--</p>
-                </div>
-                <div class="kpi-card opex-kpi">
-                    <h2>Gasto OPEX Real</h2>
-                    <p class="value" id="opexActual">--</p>
-                    <span class="change" id="opexVariance">Calculando...</span>
-                </div>
-            </section>
-            
-            <!-- Controles de Filtro OPEX -->
-            <div class="filter-controls">
-                <div class="filter-group">
-                    <label for="opexMonthFilter">Periodo Mensual:</label>
-                    <select id="opexMonthFilter" onchange="applyFilters('opex')"></select>
-                </div>
-                <div class="filter-group">
-                    <label for="opexConceptFilter">Filtrar Conceptos:</label>
-                    <select id="opexConceptFilter" onchange="applyFilters('opex')"></select>
-                </div>
-                <div class="filter-group">
-                    <label for="opexVendorFilter">Filtrar Proveedores:</label>
-                    <select id="opexVendorFilter" onchange="applyFilters('opex')"></select>
-                </div>
-            </div>
-
-
-            <!-- Sección de Gráficos OPEX -->
-            <section class="charts-section">
-                
-                <!-- GRÁFICO 1: TENDENCIA MENSUAL -->
-                <div class="chart-container" style="margin-bottom: 2rem;">
-                    <h3><span style="color: var(--brand-accent);">Tendencia de Gasto Real vs. Presupuesto</span> (Últimos 3 Periodos)</h3>
-                    <!-- Se necesita un canvas por cada gráfico -->
-                    <canvas id="monthlyTrendChart"></canvas>
-                </div>
-
-                <!-- GRÁFICO 2: OPEX POR LÍNEA DE CONCEPTO -->
-                <div class="chart-container" style="margin-bottom: 2rem;">
-                    <h3>OPEX: Presupuesto vs. Gasto vs. Restante por Línea de Concepto</h3>
-                     <canvas id="opexConceptChart"></canvas>
-                </div>
-
-                <!-- GRÁFICO 3: GASTOS POR PROVEEDOR OPEX (Acumulado) -->
-                <div class="chart-container" style="margin-bottom: 2rem;">
-                    <h3>OPEX: Gastos Acumulados por Proveedor (Ahorro Destacado)</h3>
-                     <canvas id="opexVendorChart"></canvas>
-                </div>
-            </section>
-        </div>
-        <!-- ---------------------- -->
-
-        <!-- --- CONTENIDO CAPEX --- -->
-        <div id="capex-content" class="tab-content hidden">
-            <!-- Título de alto contraste -->
-            <h2 class="section-title capex-title">Indicadores Clave CAPEX (Gastos de Capital)</h2>
-
-            <!-- Resumen de Métricas Clave CAPEX -->
-            <section class="kpi-cards" id="capexKpis">
-                <div class="kpi-card capex-kpi">
-                    <h2>Presupuesto CAPEX Total</h2>
-                    <p class="value" id="capexBudget">--</p>
-                </div>
-                <div class="kpi-card capex-kpi">
-                    <h2>Gasto CAPEX Real</h2>
-                    <p class="value" id="capexActual">--</p>
-                    <span class="change" id="capexVariance">Calculando...</span>
-                </div>
-            </section>
-
-             <!-- Controles de Filtro CAPEX -->
-            <div class="filter-controls">
-                <div class="filter-group">
-                    <label for="capexConceptFilter">Filtrar Conceptos:</label>
-                    <select id="capexConceptFilter" onchange="applyFilters('capex')"></select>
-                </div>
-                <div class="filter-group">
-                    <label for="capexVendorFilter">Filtrar Proveedores:</label>
-                    <select id="capexVendorFilter" onchange="applyFilters('capex')"></select>
-                </div>
-            </div>
-
-            <!-- Sección de Gráficos CAPEX -->
-            <section class="charts-section">
-
-                <!-- GRÁFICO 5: CALENDARIO DE PRESUPUESTO CAPEX MENSUAL (Tabla) -->
-                <div class="chart-container" style="margin-bottom: 2rem;">
-                    <h3>CAPEX: Calendario de Presupuesto Mensual por Concepto ($M)</h3>
-                    <div id="capexScheduleTableContainer" class="schedule-table-container">
-                        <!-- La tabla de calendario se renderizará aquí -->
-                    </div>
-                </div>
-
-                <div class="itam-grid">
-                    <!-- GRÁFICO 2: CAPEX POR LÍNEA DE CONCEPTO -->
-                    <div class="chart-container">
-                        <h3>CAPEX: Presupuesto vs. Gasto vs. Restante por Línea de Concepto</h3>
-                        <canvas id="capexConceptChart"></canvas>
-                    </div>
-
-                    <!-- GRÁFICO 4: GASTOS POR PROVEEDOR CAPEX (Acumulado) -->
-                    <div class="chart-container">
-                        <h3>CAPEX: Gastos Acumulados por Proveedor (Azul Claro Destacado)</h3>
-                        <canvas id="capexVendorChart"></canvas>
-                    </div>
-                </div>
-            </section>
-        </div>
-        <!-- ----------------------- -->
-        
-        <!-- --- CONTENIDO ITAM (HAM) --- -->
-        <div id="itam-content" class="tab-content hidden">
-            <!-- Título de alto contraste -->
-            <h2 class="section-title itam-title">
-                ITAM: Indicadores de Hardware (Eficiencia, Riesgo y Costo)
-            </h2>
-
-            <!-- Controles de Filtro ITAM (usa el filtro de mes de OPEX para consistencia de datos) -->
-            <div class="filter-controls">
-                 <p style="font-weight: 600; color: var(--itam-color);">
-                     Los indicadores de ITAM se actualizan automáticamente con el Periodo Mensual seleccionado en la pestaña OPEX.
-                 </p>
+    <div class="max-w-full mx-auto">
+        <!-- Header -->
+        <header class="mb-6 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Farmatodo <span class="text-blue-700">Venezuela</span></h1>
+                <p class="text-gray-500 font-medium text-sm">Dashboard de Activos TI & Gestión de Stock Sobrante</p>
             </div>
             
-            <!-- KPIs DE PRECISIÓN Y RIESGO INMEDIATO -->
-            <section class="kpi-cards" id="itamKpis">
-                <div class="kpi-card itam-kpi" style="border-top: 5px solid var(--secondary-color);">
-                    <h2>Precisión del Inventario Físico</h2>
-                    <p class="value" id="itamInventoryAccuracy">--</p>
-                </div>
-                <div class="kpi-card itam-kpi" style="border-top: 5px solid var(--danger-color);">
-                    <h2>Activos Después de Fin de Vida Útil (EOL)</h2>
-                    <p class="value" id="itamEolPercentage">--</p>
-                </div>
-            </section>
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-gray-200 overflow-x-auto">
+                <button onclick="switchTab('summary')" id="tab-summary" class="tab-btn active px-6 py-2 text-xs uppercase tracking-wider whitespace-nowrap">Resumen General</button>
+                <button onclick="switchTab('detailed')" id="tab-detailed" class="tab-btn px-6 py-2 text-xs uppercase tracking-wider whitespace-nowrap">Detalle por Tienda</button>
+                <button onclick="switchTab('investment')" id="tab-investment" class="tab-btn px-6 py-2 text-xs uppercase tracking-wider whitespace-nowrap text-blue-600">Indicador de Inversión y Stock</button>
+            </div>
+        </header>
 
-            <!-- GRÁFICOS DE RIESGO Y SALUD (Compliance y Edad) -->
-            <h2 class="itam-subtitle">
-                RIESGO Y SALUD: Cumplimiento y Ciclo de Vida
-            </h2>
-            <section class="itam-grid">
-                <!-- GRÁFICO 6: Tasa de Cumplimiento de Auditoría -->
-                <div class="chart-container">
-                    <h3>RIESGO: Tasa de Cumplimiento de Auditoría de Activos Físicos (%)</h3>
-                    <canvas id="opexComplianceChart"></canvas>
+        <!-- TAB: RESUMEN GENERAL -->
+        <div id="content-summary">
+            <div class="mb-4 flex flex-col md:flex-row gap-4 justify-between items-center">
+                <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-100 flex gap-2 items-center">
+                    <button onclick="setFilter('all')" id="btn-all" class="filter-btn active px-3 py-1.5 text-[11px] font-medium border rounded-md transition-all">Todos</button>
+                    <button onclick="setFilter('shortage')" id="btn-shortage" class="filter-btn px-3 py-1.5 text-[11px] font-medium border border-red-200 text-red-600 rounded-md transition-all">Déficit (Compra)</button>
+                    <button onclick="setFilter('surplus')" id="btn-surplus" class="filter-btn px-3 py-1.5 text-[11px] font-medium border border-cyan-200 text-cyan-600 rounded-md transition-all">Stock Sobrante</button>
                 </div>
-
-                <!-- GRÁFICO 7: Edad Promedio de la Base de Activos -->
-                <div class="chart-container">
-                    <h3>SALUD: Edad Promedio por Categoría (Meses)</h3>
-                    <canvas id="opexAssetAgeChart"></canvas>
+                <input type="text" id="searchInput" placeholder="Buscar equipo..." class="w-full md:max-w-xs px-4 py-1.5 text-sm border border-gray-300 rounded-md outline-none">
+            </div>
+            <div class="table-container">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse" id="inventoryTable">
+                        <thead>
+                            <tr class="farmatodo-blue text-white uppercase text-[10px] tracking-wider">
+                                <th class="px-6 py-4 font-bold">Equipo</th>
+                                <th class="px-4 py-4 text-center">Inv. Inicial</th>
+                                <th class="px-4 py-4 text-center">Recibidos</th>
+                                <th class="px-4 py-4 text-center">En Tránsito</th>
+                                <th class="px-4 py-4 text-center">Consumo</th>
+                                <th class="px-4 py-4 text-center">Plan Proyecto</th>
+                                <th class="px-4 py-4 text-center bg-blue-900">Estatus de Inventario</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200"></tbody>
+                    </table>
                 </div>
-            </section>
-            
-            <!-- NUEVA SECCIÓN: INDICADORES OPERACIONALES Y DE RENDIMIENTO (Títulos de alto contraste) -->
-            <h2 class="itam-subtitle">
-                OPERACIONAL: Rendimiento y Eficiencia (MTBF/Uso)
-            </h2>
-            <section class="itam-grid">
-                <!-- NUEVO GRÁFICO 8: Tasa de Fallos de Hardware (MTBF) -->
-                <div class="chart-container">
-                    <h3>OPERACIÓN: MTBF (Días Promedio Entre Fallos) por Tipo de Activo</h3>
-                    <canvas id="itamFailureRateChart"></canvas>
-                </div>
-
-                <!-- NUEVO GRÁFICO 9: Índice de Uso de la Capacidad -->
-                <div class="chart-container">
-                    <h3>EFICIENCIA: Índice de Uso de la Capacidad (CPU/RAM) (%)</h3>
-                    <canvas id="itamCapacityUsageChart"></canvas>
-                </div>
-            </section>
-
-
-            <!-- GRÁFICOS DE COSTO (TCO, CMA, Mantenimiento) (Títulos de alto contraste) -->
-            <h2 class="itam-subtitle">
-                COSTO: TCO y Mantenimiento
-            </h2>
-            <section class="itam-grid">
-                <!-- GRÁFICO TCO: Costo Total de Propiedad -->
-                <div class="chart-container">
-                    <h3>COSTO: Costo Total de Propiedad (TCO) por Categoría de Activo ($M)</h3>
-                    <canvas id="opexTCOChart"></canvas>
-                </div>
-
-                <!-- GRÁFICO CMA: Costo Promedio de Mantenimiento por Activo -->
-                <div class="chart-container">
-                    <h3>COSTO: Costo Promedio de Mantenimiento por Activo (CMA) ($K por unidad)</h3>
-                    <canvas id="opexCMAChart"></canvas>
-                </div>
-
-                <!-- GRÁFICO GASTO VS PPTO DE MANTENIMIENTO -->
-                <div class="chart-container">
-                    <h3>COSTO: Gasto Real vs. Presupuesto de Mantenimiento ($M)</h3>
-                    <canvas id="opexMaintenanceChart"></canvas>
-                </div>
-            </section>
+            </div>
+            <div class="mt-4 flex gap-6 text-[10px] uppercase font-bold text-gray-500">
+                <div class="flex items-center gap-2"><span class="w-3 h-3 bg-red-100 border border-red-400 rounded"></span> Déficit Requerido</div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 bg-cyan-100 border border-cyan-400 rounded"></span> Stock Sobrante (Próximas Tiendas)</div>
+            </div>
         </div>
-        <!-- ----------------------- -->
 
-    </main>
+        <!-- TAB: DETALLE POR TIENDA -->
+        <div id="content-detailed" class="hidden">
+            <div class="mb-4 flex justify-end">
+                <input type="text" id="searchDetailedInput" oninput="renderDetailedTable()" placeholder="Filtrar por tienda o equipo..." class="w-full md:max-w-xs px-4 py-1.5 text-sm border border-gray-300 rounded-md outline-none">
+            </div>
+            <div class="table-container">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-[9px]" id="detailedTable">
+                        <thead>
+                            <tr class="farmatodo-blue text-white uppercase tracking-wider">
+                                <th class="px-3 py-4 font-bold header-sticky-col min-w-[180px]">Equipos</th>
+                                <th class="px-1 py-4 text-center">ISABELICA</th>
+                                <th class="px-1 py-4 text-center">MAIQUETIA</th>
+                                <th class="px-1 py-4 text-center">C. ACOSTA</th>
+                                <th class="px-1 py-4 text-center">CUMBRES</th>
+                                <th class="px-1 py-4 text-center">OBELISCO</th>
+                                <th class="px-1 py-4 text-center">ANITA</th>
+                                <th class="px-1 py-4 text-center">ORINOCO</th>
+                                <th class="px-1 py-4 text-center">PUNCERES</th>
+                                <th class="px-1 py-4 text-center">ARBOLITOS</th>
+                                <th class="px-1 py-4 text-center">MARACAIBO</th>
+                                <th class="px-1 py-4 text-center bg-blue-700">TIENDA 1</th>
+                                <th class="px-1 py-4 text-center bg-blue-700">TIENDA 2</th>
+                                <th class="px-1 py-4 text-center bg-indigo-700">MUDANZA 1</th>
+                                <th class="px-1 py-4 text-center bg-indigo-700">MUDANZA 2</th>
+                                <th class="px-1 py-4 text-center bg-indigo-800">MUDANZA 3</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-    <footer>
-        <p style="text-align: center; color: #777; padding: 2rem 0;">&copy; 2024 Reporte Financiero. Tema Corporativo Azul.</p>
-    </footer>
+        <!-- TAB: INVERSIÓN (GRÁFICA) -->
+        <div id="content-investment" class="hidden">
+            <!-- Sección de inversión similar a la anterior -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
+                    <h3 class="text-sm font-bold text-gray-500 uppercase mb-4">Inversión vs. Activos en Stock (USD)</h3>
+                    <div class="h-[400px]">
+                        <canvas id="investmentChart"></canvas>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-6">
+                    <div class="bg-blue-600 p-6 rounded-xl shadow-lg text-white">
+                        <h3 class="text-xs uppercase font-bold opacity-80 mb-1">Inversión Pendiente</h3>
+                        <p class="text-3xl font-bold" id="totalInvestmentLabel">$0.00</p>
+                    </div>
+                    <div class="bg-cyan-600 p-6 rounded-xl shadow-lg text-white">
+                        <h3 class="text-xs uppercase font-bold opacity-80 mb-1">Valor en Stock (Sobrante)</h3>
+                        <p class="text-3xl font-bold" id="totalSurplusLabel">$0.00</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Tabla de inversión se mantiene operativa -->
+            <div class="table-container">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse" id="investmentTable">
+                        <thead>
+                            <tr class="bg-gray-800 text-white uppercase text-[10px]">
+                                <th class="px-6 py-3">Equipo</th>
+                                <th class="px-4 py-3 text-right">Costo Unitario ($)</th>
+                                <th class="px-4 py-3 text-center">Unidades</th>
+                                <th class="px-4 py-3 text-center">Condición</th>
+                                <th class="px-4 py-3 text-right bg-gray-700">Valorización ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- CÓDIGO JAVASCRIPT INTEGRADO -->
     <script>
-        // Declaraciones de Instancias de Chart.js
-        let opexConceptChartInstance = null;
-        let capexConceptChartInstance = null;
-        let opexVendorChartInstance = null;
-        let capexVendorChartInstance = null;
-        let opexTCOChartInstance = null;
-        let opexCMAChartInstance = null;
-        let opexMaintenanceChartInstance = null;
-        let opexComplianceChartInstance = null; 
-        let opexAssetAgeChartInstance = null; 
-        let itamFailureRateChartInstance = null;
-        let itamCapacityUsageChartInstance = null;
-        let monthlyTrendChartInstance = null;
+        // Datos para el resumen general
+        const summaryData = [
+            ["ACCESS POINT MERAKI", 21, 0, 18, 21, 21, -3],
+            ["BASE DE LECTORA DE PRECIOS CC6600", 36, 0, 5, 35, 20, -14],
+            ["BIOMETRICO ASISTENCIAL", 3, 0, 5, 6, 7, -5],
+            ["CABLE DE GAVETA 2 METROS", 0, 0, 0, 45, 49, -94],
+            ["CABLE EXENTRICO", 280, 0, 0, 88, 105, 87],
+            ["CABLE PINPAD USB", 96, 0, 0, 88, 105, -97],
+            ["CABLE PROLIFIC", 280, 0, 0, 88, 105, 87],
+            ["CABLE USB TIPO-C HAND HELD", 16, 0, 0, 14, 14, -12],
+            ["CARGADOR DE CUNA HAND HELD", 16, 0, 0, 14, 14, -12],
+            ["CARGADOR DE IMPRESORA PORTATIL", 8, 0, 19, 13, 14, 0],
+            ["CARGADOR DE LECTORA DE PRECIOS", 26, 0, 15, 35, 35, -29],
+            ["CARGADOR MERAKI", 9, 0, 0, 7, 7, -5],
+            ["TUBO DE CAJA", 300, 0, 0, 66, 71, 163],
+            ["CPU CAJA ALL IN ONE 3NSTAR PTE0912", 96, 0, 0, 60, 74, -38],
+            ["CPU ESTACIÓN OPTIPLEX 3080", 4, 0, 0, 10, 8, -14],
+            ["CPU ESTACIÓN BEELINK", 20, 0, 0, 15, 24, -19],
+            ["CUNA DE HANDHELD", 16, 0, 0, 12, 8, -4],
+            ["ESCANER", 127, 0, 0, 59, 74, -6],
+            ["CABLE DE ESCANER", 56, 0, 0, 59, 74, -77],
+            ["FORRO DE HAND HELD", 0, 20, 0, 26, 28, -34],
+            ["FORRO IMPRESORA PORTATIL", 16, 0, 0, 13, 14, -11],
+            ["GAVETA 3NSTAR", 54, 30, 0, 42, 49, -7],
+            ["HAND HELD", 4, 20, 0, 25, 22, -23],
+            ["HKA", 380, 0, 0, 88, 105, 187],
+            ["IMPRESORA FISCAL SRP812", 380, 0, 0, 88, 105, 187],
+            ["IMPRESORA PORTATIL", 6, 19, 19, 13, 14, 17],
+            ["LECTORA ZEBRA", 32, 10, 15, 35, 35, -13],
+            ["MERAKI CISCO MX67", 8, 0, 0, 7, 7, -6],
+            ["MONITOR DE ESTACION", 0, 0, 0, 25, 32, -57],
+            ["BIOPAGO", 70, 0, 0, 96, 105, -131],
+            ["PIN PAD P200", 96, 0, 0, 96, 105, -105],
+            ["PROTECTOR DE PANTALLA HAND HELD", 0, 0, 0, 26, 28, -54],
+            ["SERVIDOR", 8, 0, 0, 6, 7, -5],
+            ["SWITCH CISCO 48 PUERTOS", 4, 5, 0, 7, 10, -8],
+            ["TECLADO +MOUSE USB", 0, 0, 0, 24, 32, -56],
+            ["TELEFONO IP CISCO 7821", 12, 0, 0, 18, 25, -31],
+            ["VISOR DE PRECIO 3NSTAR", 200, 0, 0, 58, 70, 72],
+            ["BIOPAGO 2", 150, 0, 0, 97, 105, -52],
+            ["AUTOSERVICIO", 0, 9, 0, 5, 3, 1]
+        ];
 
-        // Colores basados en las variables CSS actualizadas (TEMA AZUL CORPORATIVO)
-        const colors = {
-            corporate: 'rgba(0, 51, 153, 0.8)', 
-            brandAccent: 'rgba(0, 119, 182, 0.9)', 
-            warning: 'rgba(243, 156, 18, 0.8)', 
-            success: 'rgba(46, 204, 113, 0.8)', 
-            danger: 'rgba(231, 76, 60, 0.8)', 
-            itam: 'rgba(94, 109, 143, 0.9)', 
-            risk: 'rgba(255, 107, 107, 0.8)', 
-            cardBackground: '#1F2A40', 
-            textColor: '#f0f0f0' 
+        // Datos para el detalle por tienda (Actualizado según requerimiento)
+        const detailedData = [
+            ["ACCESS POINT MERAKI", 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            ["BASE DE LECTORA DE PRECIOS CC6600", 5, 5, 5, 5, 5, 5, 5, 0, 5, 5, 5, 5, 0, 0, 0],
+            ["BIOMETRICO ASISTENCIAL", 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ["CABLE DE GAVETA 2 METROS", 8, 9, 7, 7, 7, 0, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            ["CABLE EXENTRICO", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["CABLE PINPAD USB", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["CABLE PROLIFIC", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["CABLE USB TIPO-C HAND HELD TC210K", 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["CARGADOR DE CUNA HAND HELD TC210K", 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["CARGADOR DE IMPRESORA PORTATIL ZQ620", 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["CARGADOR DE LECTORA DE PRECIOS CC6600", 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            ["CARGADOR MERAKI", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ["TUBO DE CAJA", 9, 11, 9, 9, 11, 8, 9, 9, 9, 11, 11, 11, 9, 9, 9],
+            ["CPU CAJA ALL IN ONE 3NSTAR PTE0912", 9, 11, 9, 9, 11, 2, 9, 10, 10, 11, 11, 11, 10, 10, 10],
+            ["CPU ESTACIÓN OPTIPLEX 3080", 2, 2, 2, 2, 2, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0],
+            ["CPU ESTACIÓN BEELINK", 2, 2, 2, 2, 2, 1, 4, 4, 4, 3, 3, 3, 4, 4, 4],
+            ["CUNA DE HANDHELD TC210K", 2, 2, 2, 2, 2, 0, 2, 0, 0, 2, 2, 2, 0, 0, 0],
+            ["ESCANER ZEBRA DS9308", 9, 11, 9, 9, 11, 1, 9, 10, 10, 11, 11, 11, 10, 10, 10],
+            ["CABLE DE ESCANER ZEBRA DS9308", 9, 11, 9, 9, 11, 1, 9, 10, 10, 11, 11, 11, 10, 10, 10],
+            ["FORRO DE HAND HELD TC210K", 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            ["FORRO IMPRESORA PORTATIL ZQ620", 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["GAVETA 3NSTAR", 7, 7, 7, 7, 7, 0, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            ["HAND HELD TC210K", 4, 3, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 2, 2, 2],
+            ["HKA", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["IMPRESORA FISCAL SRP812", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["IMPRESORA PORTATIL ZEBRA ZQ620", 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["LECTORA ZEBRA CC6600", 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            ["MERAKI CISCO MX67", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ["MONITOR DE ESTACION", 5, 4, 4, 4, 4, 0, 4, 4, 4, 5, 5, 5, 4, 4, 4],
+            ["BIOPAGO", 14, 16, 13, 13, 16, 12, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["PIN PAD P200", 14, 16, 13, 13, 16, 12, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["PROTECTOR DE PANTALLA HAND HELD TC210K", 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            ["SERVIDOR DELL R450", 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ["SWITCH CISCO 48 PUERTOS", 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1],
+            ["TECLADO +MOUSE USB", 4, 4, 4, 4, 4, 0, 4, 4, 4, 5, 5, 5, 4, 4, 4],
+            ["TELEFONO IP CISCO 7821", 3, 3, 3, 3, 3, 0, 3, 3, 3, 4, 4, 4, 3, 3, 3],
+            ["VISOR DE PRECIO 3NSTAR", 9, 10, 9, 9, 11, 1, 9, 10, 10, 10, 10, 10, 10, 10, 10],
+            ["AUTOSERVICIO", 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+        ];
+
+        const costMapping = {
+            "CABLE EXENTRICO": 20, "CABLE PROLIFIC": 20, "HKA": 435, "IMPRESORA FISCAL SRP812": 722,
+            "IMPRESORA PORTATIL": 550, "VISOR DE PRECIO 3NSTAR": 182, "TUBO DE CAJA": 110, "AUTOSERVICIO": 6234
         };
 
-        // Función auxiliar para formatear montos como moneda, redondeado a 1 decimal y con sufijo 'M'
-        const formatCurrency = (value) => new Intl.NumberFormat('es-CO', { 
-            style: 'currency', 
-            currency: 'USD', 
-            minimumFractionDigits: 1, 
-            maximumFractionDigits: 1 
-        }).format(value);
-        
-        // Versión para mostrar en tabla, con prefijo 'M'
-        const formatCurrencyTable = (value) => {
-            if (value === 0) return '$0.0M';
-            return formatCurrency(value).replace('$', '') + 'M';
+        let currentFilter = 'all';
+        let investmentChartInstance = null;
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            document.getElementById('content-summary').classList.add('hidden');
+            document.getElementById('content-detailed').classList.add('hidden');
+            document.getElementById('content-investment').classList.add('hidden');
+            
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+
+            if (tabId === 'detailed') renderDetailedTable();
+            if (tabId === 'investment') renderInvestmentTab();
         }
 
-        // Función auxiliar para calcular varianza (usada en los KPIs superiores)
-        const calculateVariance = (budget, actual) => {
-            const diff = budget - actual;
-            const percentage = budget !== 0 ? (diff / budget) * 100 : 0; 
-            
-            let className = 'on-target';
-            let text = '✓ En meta';
-
-            if (diff > 0.01) { // Ahorro
-                className = 'saved';
-                text = `▲ ${Math.abs(percentage).toFixed(2)}% de Ahorro`;
-            } else if (diff < -0.01) { // Sobregasto
-                className = 'overspent';
-                text = `▼ ${Math.abs(percentage).toFixed(2)}% de Sobregasto`;
-            }
-
-            return { text, className };
-        };
-
-        // Función auxiliar para formatear la fecha YYYY-MM a "Mes YYYY"
-        const formatMonthYear = (dateStr) => {
-            const [year, month] = dateStr.split('-');
-            const date = new Date(year, month - 1);
-            return date.toLocaleString('es-ES', { month: 'short', year: 'numeric' });
-        };
-
-
-        // --- Datos de Plantilla (Ejemplo en Millones de $) ---
-        const financialData = {
-            // Historial Mensual para OPEX (clave: YYYY-MM)
-            opexMonthlyHistory: {
-                '2024-06': { // Junio 2024 (Ejemplo de Ahorro)
-                    budget: 12.0, 
-                    actual: 11.2, 
-                    conceptBreakdown: {
-                        labels: ['Salarios', 'Mkt Digital', 'Arriendos', 'Suministros', 'Servicios'],
-                        budget: [5.0, 2.0, 3.5, 1.5, 1.0], 
-                        actual: [5.2, 1.8, 3.4, 1.2, 0.9],
-                    },
-                    vendorSpending: {
-                        labels: ['Facility Mgmt B', 'Recursos C', 'Nubes E', 'Telecom F', 'Marketing Z'],
-                        spent: [3.4, 2.1, 1.0, 1.5, 2.5], 
-                    },
-                    itamMetrics: {
-                        tco: {
-                            assetLabels: ['Laptop Std', 'Laptop Power', 'Server Virtual', 'Server Physical'],
-                            totalCost: [2.5, 3.2, 5.0, 7.8], 
-                            purchaseCost: [0.8, 1.1, 1.5, 3.0], 
-                        },
-                        cma: {
-                            assetTypeLabels: ['Laptop Std', 'Desktop VDI', 'Phone VoIP', 'Router Network'],
-                            costPerAsset: [0.005, 0.003, 0.001, 0.008], 
-                        },
-                        maintenanceVariance: {
-                            budget: 1.5, 
-                            actual: 1.25, 
-                        },
-                        compliance: { 
-                            licensed: 85, 
-                            unlicensed: 15,
-                        },
-                        assetAge: { 
-                            assetLabels: ['Laptops', 'Desktops', 'Servidores', 'Redes'],
-                            averageAge: [30, 48, 65, 72], 
-                        },
-                        inventoryAccuracy: 98.5, 
-                        eolPercentage: 15, 
-                        failureRateMTBF: {
-                            labels: ['Laptops', 'Servidores Core', 'Router WAN'],
-                            days: [120, 90, 150] 
-                        },
-                        capacityUsage: {
-                            labels: ['Servidor DB', 'Servidor Web', 'Almacenamiento SAN'],
-                            usage: [85, 45, 70] 
-                        }
-                    }
-                },
-                '2024-05': { // Mayo 2024 (Ejemplo de Gran Ahorro)
-                    budget: 11.5, 
-                    actual: 10.0, 
-                    conceptBreakdown: {
-                        labels: ['Salarios', 'Mkt Digital', 'Arriendos', 'Suministros', 'Servicios'],
-                        budget: [4.9, 1.9, 3.3, 1.4, 1.0], 
-                        actual: [4.5, 1.5, 3.0, 0.8, 0.2],
-                    },
-                    vendorSpending: {
-                        labels: ['Facility Mgmt B', 'Recursos C', 'Nubes E', 'Telecom F', 'Marketing Z'],
-                        spent: [3.0, 2.0, 0.9, 1.2, 1.5], 
-                    },
-                    itamMetrics: {
-                        tco: {
-                            assetLabels: ['Laptop Std', 'Laptop Power', 'Server Virtual', 'Server Physical'],
-                            totalCost: [2.6, 3.0, 5.2, 7.5], 
-                            purchaseCost: [0.9, 1.0, 1.7, 3.1], 
-                        },
-                        cma: {
-                            assetTypeLabels: ['Laptop Std', 'Desktop VDI', 'Phone VoIP', 'Router Network'],
-                            costPerAsset: [0.006, 0.002, 0.001, 0.007], 
-                        },
-                        maintenanceVariance: {
-                            budget: 1.4, 
-                            actual: 1.45, 
-                        },
-                        compliance: {
-                            licensed: 95, 
-                            unlicensed: 5,
-                        },
-                        assetAge: {
-                            assetLabels: ['Laptops', 'Desktops', 'Servidores', 'Redes'],
-                            averageAge: [28, 45, 60, 68], 
-                        },
-                        inventoryAccuracy: 99.1, 
-                        eolPercentage: 12, 
-                        failureRateMTBF: {
-                            labels: ['Laptops', 'Servidores Core', 'Router WAN'],
-                            days: [110, 85, 140]
-                        },
-                        capacityUsage: {
-                            labels: ['Servidor DB', 'Servidor Web', 'Almacenamiento SAN'],
-                            usage: [80, 50, 65]
-                        }
-                    }
-                },
-                '2024-04': { // Abril 2024 (Ejemplo de Sobregasto)
-                    budget: 10.0, 
-                    actual: 11.5, 
-                    conceptBreakdown: {
-                        labels: ['Salarios', 'Mkt Digital', 'Arriendos', 'Suministros', 'Servicios'],
-                        budget: [5.0, 1.0, 3.0, 0.5, 0.5], 
-                        actual: [5.5, 1.5, 3.5, 0.6, 0.4],
-                    },
-                    vendorSpending: {
-                        labels: ['Facility Mgmt B', 'Recursos C', 'Nubes E', 'Telecom F', 'Marketing Z'],
-                        spent: [3.5, 2.5, 1.5, 2.0, 2.0], 
-                    },
-                    itamMetrics: {
-                        tco: {
-                            assetLabels: ['Laptop Std', 'Laptop Power', 'Server Virtual', 'Server Physical'],
-                            totalCost: [2.8, 3.5, 4.8, 8.0], 
-                            purchaseCost: [1.0, 1.3, 1.3, 3.2], 
-                        },
-                        cma: {
-                            assetTypeLabels: ['Laptop Std', 'Desktop VDI', 'Phone VoIP', 'Router Network'],
-                            costPerAsset: [0.007, 0.004, 0.002, 0.009], 
-                        },
-                        maintenanceVariance: {
-                            budget: 1.6, 
-                            actual: 1.75, 
-                        },
-                        compliance: {
-                            licensed: 70, 
-                            unlicensed: 30,
-                        },
-                        assetAge: {
-                            assetLabels: ['Laptops', 'Desktops', 'Servidores', 'Redes'],
-                            averageAge: [35, 50, 70, 78], 
-                        },
-                        inventoryAccuracy: 95.0, 
-                        eolPercentage: 18, 
-                        failureRateMTBF: {
-                            labels: ['Laptops', 'Servidores Core', 'Router WAN'],
-                            days: [100, 80, 130]
-                        },
-                        capacityUsage: {
-                            labels: ['Servidor DB', 'Servidor Web', 'Almacenamiento SAN'],
-                            usage: [90, 40, 75]
-                        }
-                    }
-                }
-            },
-
-            // Data Estática para CAPEX (no cambia por mes) 
-            capex: {
-                budget: 18.0, 
-                actual: 16.8, 
-                conceptBreakdown: {
-                    labels: ['IT Infraestructura', 'Maquinaria Pesada', 'Construcción', 'Flota y Transporte'],
-                    budget: [6.0, 4.0, 7.0, 1.0], 
-                    actual: [5.5, 4.5, 6.8, 0.0],
-                },
-                vendorSpending: {
-                    labels: ['Vendor Soft A (Soporte HW)', 'Hardware D', 'Maquinaria G', 'Construcción H'],
-                    spent: [4.5, 1.5, 4.0, 6.8], 
-                },
-                
-                monthlySchedule: {
-                    labels: ['IT Infraestructura', 'Maquinaria Pesada', 'Construcción', 'Flota y Transporte'],
-                    schedule: {
-                        '2024-07': [2.0, 1.5, 3.5, 0.0], 
-                        '2024-08': [1.5, 2.0, 2.0, 0.0], 
-                        '2024-09': [1.0, 0.0, 1.0, 1.0], 
-                        '2024-10': [0.5, 0.0, 0.0, 0.0], 
-                        '2024-11': [0.5, 0.0, 0.0, 0.0], 
-                    }
-                }
-            }
-        };
-
-        // Función auxiliar para destruir de forma segura las instancias de Chart.js
-        const safeDestroy = (instance) => {
-            if (instance && instance.destroy) {
-                instance.destroy();
-            }
-            return null; // Siempre retorna null para reasignar la variable de instancia
-        };
-        
-        // Destruye todos los gráficos relacionados con una sección
-        const destroyAllGroupCharts = (groupType) => {
-            if (groupType === 'opex' || groupType === 'itam') {
-                monthlyTrendChartInstance = safeDestroy(monthlyTrendChartInstance);
-                opexConceptChartInstance = safeDestroy(opexConceptChartInstance);
-                opexVendorChartInstance = safeDestroy(opexVendorChartInstance);
-                
-                // Gráficos ITAM
-                opexTCOChartInstance = safeDestroy(opexTCOChartInstance);
-                opexCMAChartInstance = safeDestroy(opexCMAChartInstance);
-                opexMaintenanceChartInstance = safeDestroy(opexMaintenanceChartInstance);
-                opexComplianceChartInstance = safeDestroy(opexComplianceChartInstance);
-                opexAssetAgeChartInstance = safeDestroy(opexAssetAgeChartInstance);
-                itamFailureRateChartInstance = safeDestroy(itamFailureRateChartInstance);
-                itamCapacityUsageChartInstance = safeDestroy(itamCapacityUsageChartInstance);
-            }
-
-            if (groupType === 'capex') {
-                capexConceptChartInstance = safeDestroy(capexConceptChartInstance);
-                capexVendorChartInstance = safeDestroy(capexVendorChartInstance);
-            }
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${filter}`).classList.add('active');
+            renderSummaryTable();
         }
 
-        // ------------------------------------
-        // 1. Renderizar KPIs (Métricas Clave)
-        // ------------------------------------
-        const renderKPIs = (type, data) => {
-            const budgetElement = document.getElementById(`${type}Budget`);
-            const actualElement = document.getElementById(`${type}Actual`);
-            const varianceElement = document.getElementById(`${type}Variance`);
+        function renderSummaryTable() {
+            const tbody = document.querySelector('#inventoryTable tbody');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            tbody.innerHTML = '';
 
-            if (!budgetElement || !actualElement || !varianceElement) return;
+            summaryData.forEach(item => {
+                const [name, init, rec, trans, cons, req, pending] = item;
+                if (!name.toLowerCase().includes(search)) return;
+                
+                if (currentFilter === 'shortage' && pending >= 0) return;
+                if (currentFilter === 'surplus' && pending <= 0) return;
 
-            budgetElement.textContent = formatCurrency(data.budget) + 'M';
-            actualElement.textContent = formatCurrency(data.actual) + 'M';
+                const row = document.createElement('tr');
+                row.className = "hover:bg-gray-50 text-[11px]";
+                
+                let statusText = '';
+                let bgClass = '';
+                let textClass = '';
+
+                if (pending < 0) {
+                    statusText = `${Math.abs(pending)} (DÉFICIT)`;
+                    bgClass = 'bg-red-50';
+                    textClass = 'text-red-700 font-bold';
+                } else if (pending > 0) {
+                    statusText = `${pending} (SOBRANTE)`;
+                    bgClass = 'bg-cyan-50';
+                    textClass = 'text-cyan-700 font-bold';
+                } else {
+                    statusText = '0 (SALDO)';
+                    bgClass = 'bg-gray-50';
+                    textClass = 'text-gray-400';
+                }
+
+                row.innerHTML = `<td class="px-6 py-3 font-semibold sticky-col">${name}</td>
+                    <td class="text-center">${init}</td><td class="text-center">${rec}</td>
+                    <td class="text-center">${trans}</td><td class="text-center">${cons}</td>
+                    <td class="text-center">${req}</td>
+                    <td class="text-center ${textClass} ${bgClass} border-l border-gray-100">${statusText}</td>`;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderDetailedTable() {
+            const tbody = document.querySelector('#detailedTable tbody');
+            const search = document.getElementById('searchDetailedInput').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            detailedData.forEach(item => {
+                const name = item[0];
+                if (!name.toLowerCase().includes(search)) return;
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-gray-50 text-center";
+                
+                let cells = `<td class="px-3 py-3 font-semibold text-left sticky-col">${name}</td>`;
+                for (let i = 1; i < item.length; i++) {
+                    const val = item[i];
+                    // Resaltar cantidades significativas
+                    const bg = val > 10 ? 'bg-blue-50/50 font-semibold' : '';
+                    const color = val === 0 ? 'text-gray-300' : 'text-gray-700';
+                    cells += `<td class="px-1 py-3 ${bg} ${color}">${val}</td>`;
+                }
+                
+                row.innerHTML = cells;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderInvestmentTab() {
+            const tbody = document.querySelector('#investmentTable tbody');
+            tbody.innerHTML = '';
+            let totalInvestment = 0;
+            let totalSurplus = 0;
+
+            const displayData = summaryData.map(item => {
+                const name = item[0];
+                const qty = item[6];
+                let unitCost = costMapping[name] || 0;
+                
+                const originalCosts = [
+                    ["ACCESS POINT MERAKI", 289.52], ["BASE DE LECTORA DE PRECIOS CC6600", 120], ["BIOMETRICO ASISTENCIAL", 2148],
+                    ["CABLE DE GAVETA 2 METROS", 10], ["CABLE PINPAD USB", 20], ["CABLE USB TIPO-C HAND HELD", 10],
+                    ["CPU CAJA ALL IN ONE 3NSTAR PTE0912", 1534], ["CPU ESTACIÓN BEELINK", 190], ["ESCANER", 60],
+                    ["FORRO DE HAND HELD", 25], ["FORRO IMPRESORA PORTATIL", 40], ["GAVETA 3NSTAR", 90],
+                    ["HAND HELD", 330], ["LECTORA ZEBRA", 410], ["MERAKI CISCO MX67", 741], ["MONITOR DE ESTACION", 150],
+                    ["BIOPAGO", 100.44], ["PIN PAD P200", 288], ["PROTECTOR DE PANTALLA HAND HELD", 25],
+                    ["SERVIDOR", 3781], ["SWITCH CISCO 48 PUERTOS", 1377.9], ["TECLADO +MOUSE USB", 20],
+                    ["TELEFONO IP CISCO 7821", 169], ["BIOPAGO 2", 100.44]
+                ].find(i => i[0] === name);
+
+                if (originalCosts) unitCost = originalCosts[1];
+
+                const valorization = Math.abs(qty) * unitCost;
+                return { name, unitCost, qty, valorization };
+            }).filter(i => i.valorization > 0);
+
+            displayData.forEach(item => {
+                if (item.qty < 0) totalInvestment += item.valorization;
+                else totalSurplus += item.valorization;
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-gray-50";
+                const isSurplus = item.qty > 0;
+                
+                row.innerHTML = `
+                    <td class="px-6 py-3 font-medium text-gray-700">${item.name}</td>
+                    <td class="px-4 py-3 text-right text-gray-500">$ ${item.unitCost.toLocaleString()}</td>
+                    <td class="px-4 py-3 text-center">${Math.abs(item.qty)}</td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isSurplus ? 'bg-cyan-100 text-cyan-700' : 'bg-red-100 text-red-700'}">
+                            ${isSurplus ? 'STOCK DISPONIBLE' : 'POR COMPRAR'}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right font-bold ${isSurplus ? 'text-cyan-700 bg-cyan-50/20' : 'text-red-700 bg-red-50/20'}">$ ${item.valorization.toLocaleString()}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('totalInvestmentLabel').innerText = `$ ${totalInvestment.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('totalSurplusLabel').innerText = `$ ${totalSurplus.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+
+            renderChart(displayData);
+        }
+
+        function renderChart(data) {
+            const ctx = document.getElementById('investmentChart').getContext('2d');
+            if (investmentChartInstance) investmentChartInstance.destroy();
+
+            const topShortage = data.filter(i => i.qty < 0).sort((a,b) => b.valorization - a.valorization).slice(0, 5);
+            const topSurplus = data.filter(i => i.qty > 0).sort((a,b) => b.valorization - a.valorization).slice(0, 5);
             
-            const variance = calculateVariance(data.budget, data.actual);
-            varianceElement.textContent = variance.text;
-            varianceElement.className = 'change ' + variance.className;
-        };
-        
-        // --- GRÁFICO DE LÍNEA ONDULADA (WAVY LINE CHART) ---
-        const renderWavyLineChart = () => {
-            const ctx = document.getElementById('monthlyTrendChart')?.getContext('2d');
-            if (!ctx) return;
-            
-            monthlyTrendChartInstance = safeDestroy(monthlyTrendChartInstance);
-            
-            const monthKeys = Object.keys(financialData.opexMonthlyHistory).sort();
-            const labels = monthKeys.map(formatMonthYear);
-            const actualData = monthKeys.map(key => financialData.opexMonthlyHistory[key].actual);
-            const budgetData = monthKeys.map(key => financialData.opexMonthlyHistory[key].budget);
+            const combinedLabels = [...topShortage.map(i => i.name), ...topSurplus.map(i => i.name)];
+            const shortageValues = [...topShortage.map(i => i.valorization), ...topSurplus.map(i => 0)];
+            const surplusValues = [...topShortage.map(i => 0), ...topSurplus.map(i => i.valorization)];
 
-            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, colors.brandAccent.replace('0.9', '0.4')); 
-            gradient.addColorStop(1, colors.cardBackground); 
-
-            monthlyTrendChartInstance = new Chart(ctx, {
-                type: 'line',
+            investmentChartInstance = new Chart(ctx, {
+                type: 'bar',
                 data: {
-                    labels: labels,
+                    labels: combinedLabels,
                     datasets: [
-                        {
-                            label: 'Gasto Real ($M)',
-                            data: actualData,
-                            backgroundColor: gradient,
-                            borderColor: colors.brandAccent.replace('0.9', '1'), 
-                            pointBackgroundColor: colors.brandAccent.replace('0.9', '1'),
-                            pointBorderColor: colors.cardBackground,
-                            pointRadius: 6,
-                            borderWidth: 3,
-                            fill: true, 
-                            tension: 0.4, 
-                            cubicInterpolationMode: 'monotone',
-                        },
-                        {
-                            label: 'Presupuesto ($M)',
-                            data: budgetData,
-                            borderColor: colors.corporate.replace('0.8', '0.5'), 
-                            pointRadius: 0,
-                            borderWidth: 1,
-                            borderDash: [5, 5],
-                            tension: 0.4,
-                            fill: false,
-                            cubicInterpolationMode: 'monotone',
-                        }
+                        { label: 'Déficit (Inversión)', data: shortageValues, backgroundColor: '#ef4444', borderRadius: 4 },
+                        { label: 'Sobrante (Stock)', data: surplusValues, backgroundColor: '#0891b2', borderRadius: 4 }
                     ]
                 },
                 options: {
+                    indexAxis: 'y',
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: colors.textColor }
-                        },
-                        y: {
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }, 
-                            ticks: { color: colors.textColor },
-                            title: { display: true, text: 'Monto (Millones $)', color: colors.textColor.replace('0.9', '0.8') }
-                        }
-                    },
-                    plugins: {
-                        legend: { 
-                            position: 'bottom',
-                            labels: {
-                                color: colors.textColor,
-                                usePointStyle: true,
-                            }
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            backgroundColor: colors.cardBackground,
-                            titleColor: colors.brandAccent,
-                            bodyColor: colors.textColor,
-                            borderColor: colors.brandAccent,
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + formatCurrency(context.raw) + 'M';
-                                }
-                            }
-                        }
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } },
+                    scales: { 
+                        x: { stacked: true, ticks: { font: { size: 9 } } },
+                        y: { stacked: true, ticks: { font: { size: 9 } } }
                     }
                 }
             });
-        };
-        // --- FIN GRÁFICO DE LÍNEA ONDULADA ---
-
-        
-        // ------------------------------------
-        // 2. Funciones para Renderizar Gráficos OPEX y CAPEX (Adaptados al Tema Azul)
-        // ------------------------------------
-        
-        // Renderizar Gráfico de Concepto (Barra)
-        const renderConceptChart = (ctxId, data, isOpex) => {
-            const ctx = document.getElementById(ctxId)?.getContext('2d');
-            if (!ctx) return;
-            
-            let chartInstance;
-            if (isOpex) {
-                opexConceptChartInstance = safeDestroy(opexConceptChartInstance);
-                chartInstance = opexConceptChartInstance;
-            } else {
-                capexConceptChartInstance = safeDestroy(capexConceptChartInstance);
-                chartInstance = capexConceptChartInstance;
-            }
-
-
-            const remaining = data.budget.map((b, i) => b - data.actual[i]);
-            const remainingColors = remaining.map(r => r >= 0 ? colors.success : colors.danger); 
-            const primaryColor = isOpex ? colors.corporate : colors.brandAccent;
-            
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.labels,
-                    datasets: [
-                        {
-                            label: 'Presupuestado ($M)',
-                            data: data.budget,
-                            backgroundColor: primaryColor, 
-                        },
-                        {
-                            label: 'Gastado ($M)',
-                            data: data.actual,
-                            backgroundColor: colors.warning, 
-                        },
-                        {
-                            label: 'Restante ($M)',
-                            data: remaining,
-                            backgroundColor: remainingColors, 
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { stacked: false, ticks: { color: colors.textColor }, grid: { display: false } },
-                        y: {
-                            beginAtZero: true, 
-                            title: { display: true, text: 'Monto (Millones $)', color: colors.textColor.replace('0.9', '0.8') },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: colors.textColor }
-                        }
-                    },
-                    plugins: {
-                        title: { display: false },
-                        legend: { 
-                            labels: {
-                                color: colors.textColor,
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: colors.cardBackground,
-                            titleColor: primaryColor,
-                            bodyColor: colors.textColor,
-                            borderColor: primaryColor,
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    const value = context.raw;
-                                    const isRemaining = context.datasetIndex === 2;
-                                    const sign = (value >= 0 || !isRemaining) ? '' : '-'; 
-                                    const formattedValue = formatCurrency(Math.abs(value)) + 'M';
-                                    
-                                    return context.dataset.label + ': ' + sign + formattedValue;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-            
-            if (isOpex) {
-                opexConceptChartInstance = chartInstance;
-            } else {
-                capexConceptChartInstance = chartInstance;
-            }
-        };
-
-        // Renderizar Gráfico de Proveedores (Barra Horizontal)
-        const renderVendorChart = (ctxId, data, title, color, isOpex) => {
-            const ctx = document.getElementById(ctxId)?.getContext('2d');
-            if (!ctx) return;
-
-            let chartInstance;
-            if (isOpex) {
-                opexVendorChartInstance = safeDestroy(opexVendorChartInstance);
-                chartInstance = opexVendorChartInstance;
-            } else {
-                capexVendorChartInstance = safeDestroy(capexVendorChartInstance);
-                chartInstance = capexVendorChartInstance;
-            }
-            
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.labels,
-                    datasets: [{
-                        label: title,
-                        data: data.spent,
-                        backgroundColor: color, 
-                        borderColor: color.replace('0.8', '1').replace('0.9', '1'),
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    indexAxis: 'y', // Barras horizontales
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Monto (Millones $)', color: colors.textColor.replace('0.9', '0.8') },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: colors.textColor }
-                        },
-                        y: {
-                            grid: { display: false },
-                            ticks: { color: colors.textColor }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: false },
-                        tooltip: {
-                            backgroundColor: colors.cardBackground,
-                            titleColor: color,
-                            bodyColor: colors.textColor,
-                            borderColor: color,
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + formatCurrency(context.raw) + 'M';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
-            if (isOpex) {
-                opexVendorChartInstance = chartInstance;
-            } else {
-                capexVendorChartInstance = chartInstance;
-            }
-        };
-        
-        // ------------------------------------
-        // 3. FUNCIONES PARA INDICADORES ITAM (Adaptados al Tema Azul)
-        // ------------------------------------
-
-        /**
-         * 3.0. Renderiza los KPI cards superiores para ITAM (Precisión y EOL).
-         */
-        const renderITAMKPIs = (data) => {
-            const accuracyElement = document.getElementById('itamInventoryAccuracy');
-            const eolElement = document.getElementById('itamEolPercentage');
-
-            if (!accuracyElement || !eolElement) return;
-
-            // Precisión del Inventario
-            accuracyElement.textContent = `${data.inventoryAccuracy.toFixed(1)}%`;
-            accuracyElement.parentElement.style.borderTopColor = 
-                data.inventoryAccuracy >= 98 ? colors.success.replace('0.8', '1') : colors.warning.replace('0.8', '1');
-
-            // Porcentaje EOL
-            eolElement.textContent = `${data.eolPercentage.toFixed(1)}%`;
-            eolElement.parentElement.style.borderTopColor = 
-                data.eolPercentage <= 15 ? colors.success.replace('0.8', '1') : colors.danger.replace('0.8', '1');
         }
 
-
-        // 3.1. Renderizar Gráfico TCO (Costo Total de Propiedad)
-        const renderTCOChart = (data) => {
-            const ctx = document.getElementById('opexTCOChart')?.getContext('2d');
-            if (!ctx) return;
-            opexTCOChartInstance = safeDestroy(opexTCOChartInstance);
-
-            const operatingCost = data.totalCost.map((tc, i) => tc - data.purchaseCost[i]);
-            
-            opexTCOChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.assetLabels,
-                    datasets: [
-                        {
-                            label: 'Costo Operativo (OPEX)',
-                            data: operatingCost,
-                            backgroundColor: colors.itam, 
-                            stack: 'TCOStack',
-                        },
-                        {
-                            label: 'Costo de Compra (CAPEX Inicial)',
-                            data: data.purchaseCost,
-                            backgroundColor: colors.corporate.replace('0.8', '0.6'), 
-                            stack: 'TCOStack',
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { stacked: true, ticks: { color: colors.textColor }, grid: { display: false } },
-                        y: {
-                            stacked: true,
-                            beginAtZero: true, 
-                            title: { display: true, text: 'Monto (Millones $)', color: colors.textColor.replace('0.9', '0.8') },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: colors.textColor }
-                        }
-                    },
-                    plugins: {
-                        title: { display: false },
-                        legend: { 
-                            labels: { color: colors.textColor, }
-                        },
-                        tooltip: {
-                             backgroundColor: colors.cardBackground,
-                             titleColor: colors.itam,
-                             bodyColor: colors.textColor,
-                             borderColor: colors.itam,
-                             borderWidth: 1,
-                             callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + formatCurrency(context.raw) + 'M';
-                                },
-                                footer: function(context) {
-                                    const itemIndex = context[0].dataIndex;
-                                    const purchase = data.purchaseCost[itemIndex];
-                                    const operating = operatingCost[itemIndex];
-                                    const totalTCO = purchase + operating;
-                                    return `TCO Total: ${formatCurrency(totalTCO)}M`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        };
-
-        // 3.2. Renderizar Gráfico CMA (Costo Promedio de Mantenimiento por Activo)
-        const renderCMAChart = (data) => {
-            const ctx = document.getElementById('opexCMAChart')?.getContext('2d');
-            if (!ctx) return;
-            opexCMAChartInstance = safeDestroy(opexCMAChartInstance);
-            
-            opexCMAChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.assetTypeLabels,
-                    datasets: [{
-                        label: 'Costo Promedio ($M por Unidad)',
-                        data: data.costPerAsset,
-                        backgroundColor: colors.success, 
-                    }]
-                },
-                options: {
-                    indexAxis: 'y', // Barras horizontales
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Monto (Miles $)', color: colors.textColor.replace('0.9', '0.8') },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: colors.textColor }
-                        },
-                        y: {
-                            grid: { display: false },
-                            ticks: { color: colors.textColor }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: false },
-                        tooltip: {
-                            backgroundColor: colors.cardBackground,
-                            titleColor: colors.success,
-                            bodyColor: colors.textColor,
-                            borderColor: colors.success,
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    const costInThousands = context.raw * 1000;
-                                    return `Costo: $${costInThousands.toFixed(1)}K USD/Unidad`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        };
-
-        // 3.3. Renderizar Gasto Real vs. Presupuesto de Mantenimiento
-        const renderMaintenanceVarianceChart = (data) => {
-            const ctx = document.getElementById('opexMaintenanceChart')?.getContext('2d');
-            if (!ctx) return;
-            opexMaintenanceChartInstance = safeDestroy(opexMaintenanceChartInstance);
-
-            const variance = data.budget - data.actual;
-            const varianceColor = variance >= 0 ? colors.success : colors.danger;
-            
-            opexMaintenanceChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['Presupuestado', 'Gasto Real'],
-                    datasets: [{
-                        label: 'Mantenimiento ($M)',
-                        data: [data.budget, data.actual],
-                        backgroundColor: [colors.corporate.replace('0.8', '0.7'), colors.warning], 
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { grid: { display: false }, ticks: { color: colors.textColor } },
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Monto (Millones $)', color: colors.textColor.replace('0.9', '0.8') },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: colors.textColor }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        title: { 
-                            display: true, 
-                            text: variance >= 0 
-                                ? `Ahorro de ${formatCurrency(variance)}M` 
-                                : `Sobregasto de ${formatCurrency(Math.abs(variance))}M`,
-                            color: varianceColor,
-                            font: { size: 16, weight: 'bold' }
-                        },
-                        tooltip: {
-                            backgroundColor: colors.cardBackground,
-                            titleColor: varianceColor,
-                            bodyColor: colors.textColor,
-                            borderColor: varianceColor,
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.label + ': ' + formatCurrency(context.raw) + 'M';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        };
-
-        // 3.4. Renderizar Tasa de Cumplimiento de Auditoría (Doughnut Chart)
-        const renderComplianceChart = (data) => {
-            const ctx = document.getElementById('opexComplianceChart')?.getContext('2d');
-            if (!ctx) return;
-            opexComplianceChartInstance = safeDestroy(opexComplianceChartInstance);
-
-            const complianceLevel = data.licensed;
-            let complianceColor = colors.success;
-            if (complianceLevel < 80) { 
-                complianceColor = colors.danger;
-            } else if (complianceLevel < 95) { 
-                complianceColor = colors.risk;
-            }
-            
-            opexComplianceChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Activos Auditados y Encontrados (%)', 'Activos Faltantes/No Registrados (%)'],
-                    datasets: [{
-                        data: [data.licensed, data.unlicensed],
-                        backgroundColor: [complianceColor, colors.itam.replace('0.9', '0.2')], 
-                        hoverOffset: 8,
-                        borderColor: colors.cardBackground, 
-                        borderWidth: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: { display: false },
-                        legend: { 
-                            position: 'bottom',
-                            labels: {
-                                usePointStyle: true,
-                                padding: 20,
-                                color: colors.textColor,
-                            }
-                        },
-                        tooltip: {
-                            backgroundColor: colors.cardBackground,
-                            titleColor: complianceColor,
-                            bodyColor: colors.textColor,
-                            borderColor: complianceColor,
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.label + ': ' + context.parsed + '%';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        };
-
-        // 3.5. Renderizar Edad Promedio de la Base de Activos 
-        const renderAssetAgeChart = (data) => {
-            const ctx = document.getElementById('opexAssetAgeChart')?.getContext('2d');
-            if (!ctx) return;
-            opexAssetAgeChartInstance = safeDestroy(opexAssetAgeChartInstance);
-
-            const backgroundColors = data.averageAge.map(age => 
-                age > 60 ? colors.danger : (age > 40 ? colors.warning : colors.itam)
-            );
-
-            opexAssetAgeChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.assetLabels,
-                    datasets: [{
-                        label: 'Edad Promedio (Meses)',
-                        data: data.averageAge,
-                        backgroundColor: backgroundColors,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Edad (Meses)', color: colors.textColor.replace('0.9', '0.8') },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: colors.textColor }
-                        },
-                        x: { grid: { display: false }, ticks: { color: colors.textColor } }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: false },
-                        tooltip: {
-                            backgroundColor: colors.cardBackground,
-                            titleColor: colors.itam,
-                            bodyColor: colors.textColor,
-                            borderColor: colors.itam,
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.raw + ' Meses';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        };
-        
-        /**
-         * 3.6. Renderizar Tasa de Fallos de Hardware (MTBF)
-         */
-        const renderFailureRateChart = (data) => {
-            const ctx = document.getElementById('itamFailureRateChart')?.getContext('2d');
-            if (!ctx) return;
-            itamFailureRateChartInstance = safeDestroy(itamFailureRateChartInstance);
-
-            const backgroundColors = data.days.map(days => 
-                days < 100 ? colors.danger : (days < 130 ? colors.warning : colors.success)
-            );
-
-            itamFailureRateChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.labels,
-                    datasets: [{
-                        label: 'Días Promedio Entre Fallos (MTBF)',
-                        data: data.days,
-                        backgroundColor: backgroundColors,
-                    }]
-                },
-                options: {
-                    indexAxis: 'y', 
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            grid: { display: false }, 
-                            ticks: { color: colors.textColor }
-                        },
-                        x: {
-                            beginAtZero: true,
-                            title: { display: true, text: 'Días', color: colors.textColor.replace('0.9', '0.8') },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: colors.textColor }
-                        }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: false },
-                        tooltip: {
-                            backgroundColor: colors.cardBackground,
-                            titleColor: colors.success,
-                            bodyColor: colors.textColor,
-                            borderColor: colors.success,
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.raw + ' Días';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        };
-        
-        /**
-         * 3.7. Renderizar Índice de Uso de la Capacidad de Hardware
-         */
-        const renderCapacityUsageChart = (data) => {
-            const ctx = document.getElementById('itamCapacityUsageChart')?.getContext('2d');
-            if (!ctx) return;
-            itamCapacityUsageChartInstance = safeDestroy(itamCapacityUsageChartInstance);
-
-            const backgroundColors = data.usage.map(usage => 
-                usage > 80 ? colors.danger : (usage < 50 ? colors.warning : colors.itam)
-            );
-
-            itamCapacityUsageChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.labels,
-                    datasets: [{
-                        label: 'Uso Promedio (%)',
-                        data: data.usage,
-                        backgroundColor: backgroundColors,
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 100,
-                            title: { display: true, text: 'Porcentaje de Uso (%)', color: colors.textColor.replace('0.9', '0.8') },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                            ticks: { color: colors.textColor }
-                        },
-                        x: { grid: { display: false }, ticks: { color: colors.textColor } }
-                    },
-                    plugins: {
-                        legend: { display: false },
-                        title: { display: false },
-                        tooltip: {
-                            backgroundColor: colors.cardBackground,
-                            titleColor: colors.itam,
-                            bodyColor: colors.textColor,
-                            borderColor: colors.itam,
-                            borderWidth: 1,
-                            callbacks: {
-                                label: function(context) {
-                                    return context.dataset.label + ': ' + context.raw + '%';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        };
-
-
-        // ------------------------------------
-        // 4. FUNCIÓN PARA RENDERIZAR EL CALENDARIO CAPEX
-        // ------------------------------------
-        const renderCapexSchedule = () => {
-            const data = financialData.capex.monthlySchedule;
-            const container = document.getElementById('capexScheduleTableContainer');
-            if (!container) return;
-            
-            const monthKeys = Object.keys(data.schedule).sort();
-            const conceptLabels = data.labels;
-            
-            const monthlyTotals = new Array(monthKeys.length).fill(0);
-            let grandTotal = 0;
-
-            let html = '<table class="capex-schedule-table">';
-            
-            html += '<thead><tr>';
-            html += '<th style="text-align: left;">Concepto CAPEX</th>';
-            monthKeys.forEach(key => {
-                html += `<th>${formatMonthYear(key)}</th>`;
-            });
-            html += '<th>Total Concepto</th>';
-            html += '</tr></thead>';
-
-            html += '<tbody>';
-            conceptLabels.forEach((label, conceptIndex) => {
-                let rowTotal = 0;
-                html += '<tr>';
-                html += `<td>${label}</td>`; 
-                
-                monthKeys.forEach((monthKey, monthIndex) => {
-                    const amount = data.schedule[monthKey][conceptIndex] || 0;
-                    rowTotal += amount;
-                    monthlyTotals[monthIndex] += amount;
-                    
-                    const formattedAmount = formatCurrencyTable(amount);
-                    html += `<td class="${amount === 0 ? 'text-gray-500' : ''}">${formattedAmount}</td>`;
-                });
-                
-                grandTotal += rowTotal;
-
-                html += `<td><strong>${formatCurrencyTable(rowTotal)}</strong></td>`;
-                html += '</tr>';
-            });
-            html += '</tbody>';
-
-            html += '<tfoot><tr>';
-            html += '<th>Total Mensual</th>';
-            monthlyTotals.forEach(total => {
-                html += `<td><strong>${formatCurrencyTable(total)}</strong></td>`;
-            });
-            html += `<th>${formatCurrencyTable(grandTotal)}</th>`;
-            html += '</tr></tfoot>';
-
-            html += '</table>';
-            
-            container.innerHTML = html;
-        };
-
-
-        // ------------------------------------
-        // 5. Lógica de Filtros y Población
-        // ------------------------------------
-
-        const populateConceptAndVendorFilters = (type, currentConceptLabels, currentVendorLabels) => {
-            const conceptFilterId = `${type}ConceptFilter`;
-            const vendorFilterId = `${type}VendorFilter`;
-            
-            const createOptions = (id, labels) => {
-                const select = document.getElementById(id);
-                if (!select) return;
-
-                // Guardar la selección actual si existe
-                const selectedValue = select.value;
-
-                let optionsHtml = '<option value="all">Mostrar Todo</option>';
-                
-                labels.forEach(label => {
-                    optionsHtml += `<option value="${label}">${label}</option>`;
-                });
-                select.innerHTML = optionsHtml;
-
-                // Restaurar la selección si es válida
-                if (Array.from(select.options).some(option => option.value === selectedValue)) {
-                     select.value = selectedValue;
-                }
-            };
-
-            if (type !== 'itam') {
-                document.getElementById(conceptFilterId) && createOptions(conceptFilterId, currentConceptLabels);
-                document.getElementById(vendorFilterId) && createOptions(vendorFilterId, currentVendorLabels);
-            }
-        };
-
-        const populateMonthFilter = () => {
-            const monthFilter = document.getElementById('opexMonthFilter');
-            if (!monthFilter) return;
-
-            const monthKeys = Object.keys(financialData.opexMonthlyHistory).sort().reverse(); 
-            
-            let optionsHtml = '';
-            monthKeys.forEach((key, index) => {
-                const displayLabel = formatMonthYear(key);
-                const selected = index === 0 ? 'selected' : '';
-                optionsHtml += `<option value="${key}" ${selected}>${displayLabel}</option>`;
-            });
-            monthFilter.innerHTML = optionsHtml;
-        };
-
-        const applyFilters = (type) => {
-            // Destruir el grupo de gráficos NO activo.
-            destroyAllGroupCharts(type === 'capex' ? 'opex' : 'capex');
-            
-            if (type === 'opex') {
-                const selectedMonth = document.getElementById('opexMonthFilter')?.value;
-                const baseData = financialData.opexMonthlyHistory[selectedMonth];
-
-                if (!baseData) return; 
-                
-                renderKPIs('opex', { budget: baseData.budget, actual: baseData.actual });
-                
-                // --- RENDERIZADO DE GRÁFICOS OPEX ---
-                renderWavyLineChart(); 
-
-                // Poblar filtros del mes seleccionado
-                populateConceptAndVendorFilters(
-                    'opex', 
-                    baseData.conceptBreakdown.labels, 
-                    baseData.vendorSpending.labels
-                );
-
-                const conceptData = baseData.conceptBreakdown;
-                const selectedConcept = document.getElementById('opexConceptFilter')?.value || 'all';
-                let filteredConceptData = { labels: [], budget: [], actual: [] };
-                
-                if (selectedConcept === 'all') {
-                    filteredConceptData = conceptData;
-                } else {
-                    const index = conceptData.labels.indexOf(selectedConcept);
-                    if (index !== -1) {
-                        filteredConceptData.labels.push(conceptData.labels[index]);
-                        filteredConceptData.budget.push(conceptData.budget[index]);
-                        filteredConceptData.actual.push(conceptData.actual[index]);
-                    }
-                }
-                
-                renderConceptChart('opexConceptChart', filteredConceptData, true);
-
-                const vendorData = baseData.vendorSpending;
-                const selectedVendor = document.getElementById('opexVendorFilter')?.value || 'all';
-                let filteredVendorData = { labels: [], spent: [] };
-
-                if (selectedVendor === 'all') {
-                    filteredVendorData = vendorData;
-                } else {
-                    const index = vendorData.labels.indexOf(selectedVendor);
-                    if (index !== -1) {
-                        filteredVendorData.labels.push(vendorData.labels[index]);
-                        filteredVendorData.spent.push(vendorData.spent[index]);
-                    }
-                }
-
-                renderVendorChart('opexVendorChart', filteredVendorData, 'Gasto por Proveedor ($M)', colors.success, true);
-            
-            } else if (type === 'capex') {
-                const baseData = financialData.capex;
-                
-                renderKPIs('capex', { budget: baseData.budget, actual: baseData.actual });
-
-                // Poblar filtros del CAPEX (que son estáticos)
-                populateConceptAndVendorFilters(
-                    'capex', 
-                    baseData.conceptBreakdown.labels, 
-                    baseData.vendorSpending.labels
-                );
-                
-                // --- RENDERIZADO DE GRÁFICOS CAPEX ---
-                renderCapexSchedule(); 
-
-                const conceptData = baseData.conceptBreakdown;
-                const selectedConcept = document.getElementById('capexConceptFilter')?.value || 'all';
-                let filteredConceptData = { labels: [], budget: [], actual: [] };
-                
-                if (selectedConcept === 'all') {
-                    filteredConceptData = conceptData;
-                } else {
-                    const index = conceptData.labels.indexOf(selectedConcept);
-                    if (index !== -1) {
-                        filteredConceptData.labels.push(conceptData.labels[index]);
-                        filteredConceptData.budget.push(conceptData.budget[index]);
-                        filteredConceptData.actual.push(conceptData.actual[index]);
-                    }
-                }
-
-                renderConceptChart('capexConceptChart', filteredConceptData, false);
-
-                const vendorData = baseData.vendorSpending;
-                const selectedVendor = document.getElementById('capexVendorFilter')?.value || 'all';
-                let filteredVendorData = { labels: [], spent: [] };
-
-                if (selectedVendor === 'all') {
-                    filteredVendorData = vendorData;
-                } else {
-                    const index = vendorData.labels.indexOf(selectedVendor);
-                    if (index !== -1) {
-                        filteredVendorData.labels.push(vendorData.labels[index]);
-                        filteredVendorData.spent.push(vendorData.spent[index]);
-                    }
-                }
-
-                renderVendorChart('capexVendorChart', filteredVendorData, 'Gasto por Proveedor ($M)', colors.brandAccent, false);
-
-            } else if (type === 'itam') {
-                const selectedMonth = document.getElementById('opexMonthFilter')?.value;
-                const baseData = financialData.opexMonthlyHistory[selectedMonth];
-                
-                if (baseData && baseData.itamMetrics) {
-                    // --- RENDERIZADO DE GRÁFICOS ITAM ---
-                    renderITAMCharts(baseData.itamMetrics);
-                }
-            }
-        };
-
-        /**
-         * Renderiza todos los gráficos de la sección ITAM.
-         */
-        const renderITAMCharts = (data) => {
-            // Asegura que todos los gráficos ITAM que se destuyen al cambiar de pestaña se vuelvan a crear
-            renderITAMKPIs(data);
-            renderComplianceChart(data.compliance); 
-            renderAssetAgeChart(data.assetAge); 
-            renderFailureRateChart(data.failureRateMTBF);
-            renderCapacityUsageChart(data.capacityUsage);
-            renderTCOChart(data.tco);
-            renderCMAChart(data.cma);
-            renderMaintenanceVarianceChart(data.maintenanceVariance);
-        };
-
-        /**
-         * Función para cambiar entre pestañas OPEX, CAPEX e ITAM.
-         * Se asegura que los datos se carguen para la pestaña activa.
-         */
-        const showTab = (tabId) => {
-            // Ocultar todos los contenidos
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-
-            // Remover la clase 'active' de todos los botones
-            document.querySelectorAll('.tab-button').forEach(button => {
-                button.classList.remove('active');
-            });
-
-            // Mostrar el contenido y activar el botón
-            const contentElement = document.getElementById(`${tabId}-content`);
-            const buttonElement = document.getElementById(`tab-${tabId}`);
-
-            if (contentElement) contentElement.classList.remove('hidden');
-            if (buttonElement) buttonElement.classList.add('active');
-
-            // CRÍTICO: Aplicar filtros para forzar el renderizado de gráficos de la pestaña activa
-            applyFilters(tabId);
-            
-            // Reemplaza los iconos SVG de Lucide después de que el DOM está actualizado
-            lucide.createIcons();
-        };
-
-        // --- Inicialización al cargar la ventana ---
-        window.onload = function() {
-            // 1. Configuración de Tailwind (Opcional, pero buena práctica)
-            tailwind.config = {
-                theme: {
-                    extend: {
-                        fontFamily: {
-                            sans: ['Inter', 'sans-serif'],
-                        },
-                    }
-                }
-            }
-            // 2. Poblar el filtro de meses
-            populateMonthFilter(); 
-            
-            // 3. Mostrar la pestaña inicial (OPEX) y renderizar sus datos.
-            showTab('opex'); 
+        document.getElementById('searchInput').addEventListener('input', renderSummaryTable);
+        window.onload = () => {
+            renderSummaryTable();
         };
     </script>
 </body>
