@@ -3,311 +3,423 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Presentación Dashboard Financiero (HTML Local)</title>
-    <!-- Carga de Tailwind CSS: Usando el CDN oficial para mayor estabilidad -->
+    <title>Inventario TI - Gestión Fiscal e Inversión</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Carga de Lucide Icons (similar a Font Awesome) -->
-    <script type="module">
-        import { createIcons, icons } from 'https://cdn.jsdelivr.net/npm/lucide@latest/dist/esm/lucide.js';
-        window.icons = icons;
-        window.createLucideIcons = () => createIcons({ icons, attrs: { class: 'lucide' } });
-        window.addEventListener('load', window.createLucideIcons);
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* Estilo base para la fuente y el fondo oscuro */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0d0d0d; /* Fondo muy oscuro, casi negro */
-        }
-        /* Estilo para el efecto de neón en el encabezado */
-        .neon-glow {
-            text-shadow: 0 0 5px #3b82f6, 0 0 10px #3b82f6, 0 0 15px #2563eb;
-        }
-        /* Clase para las sombras neón de las tarjetas (paleta de colores) */
-        .shadow-green { box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); }
-        .shadow-blue { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
-        .shadow-red { box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
-        .shadow-yellow { box-shadow: 0 0 15px rgba(252, 211, 77, 0.5); }
-        .shadow-teal { box-shadow: 0 0 15px rgba(20, 184, 166, 0.5); }
-        .shadow-purple { box-shadow: 0 0 15px rgba(147, 51, 234, 0.5); }
-
-        .slide-card-hover:hover {
-            box-shadow: 0 0 40px rgba(37, 99, 235, 0.4);
-        }
-
-        /* ESTILOS DE TRANSICIÓN */
-        .slide-transition {
-            opacity: 0;
-            /* Aplica una transición suave de 500ms al cambiar la opacidad */
-            transition: opacity 0.5s ease-in-out; 
-        }
-        .slide-transition-active {
-            opacity: 1;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .farmatodo-blue { background-color: #004a99; }
+        .table-container { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-radius: 0.75rem; overflow: hidden; background: white; }
+        .tab-btn.active { border-bottom: 3px solid #004a99; color: #004a99; font-weight: 700; }
+        .filter-btn.active { background-color: #004a99; color: white; }
+        .sticky-col { position: sticky; left: 0; background-color: white; z-index: 10; border-right: 1px solid #e5e7eb; }
+        .header-sticky-col { position: sticky; left: 0; background-color: #004a99; z-index: 20; }
     </style>
 </head>
-<body class="text-white min-h-screen p-4 md:p-8 flex flex-col">
+<body class="p-4 md:p-8">
 
-    <!-- Header -->
-    <header id="header" class="mb-6 border-b border-gray-700 pb-4 flex justify-between items-center max-w-4xl mx-auto w-full">
-        <h1 class="text-2xl font-extrabold flex items-center neon-glow">
-            <svg class="lucide w-6 h-6 mr-2 text-blue-400" data-lucide="briefcase"></svg>
-            Presentación del Proyecto
-        </h1>
-        <div id="slide-indicator" class="text-md text-gray-400 font-medium">
-            Diapositiva 1 de 5
+    <div class="max-w-full mx-auto">
+        <!-- Header -->
+        <header class="mb-6 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800">Farmatodo <span class="text-blue-700">Venezuela</span></h1>
+                <p class="text-gray-500 font-medium text-sm">Dashboard de Activos TI & Gestión de Stock Sobrante</p>
+            </div>
+            
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-gray-200 overflow-x-auto">
+                <button onclick="switchTab('summary')" id="tab-summary" class="tab-btn active px-6 py-2 text-xs uppercase tracking-wider whitespace-nowrap">Resumen General</button>
+                <button onclick="switchTab('detailed')" id="tab-detailed" class="tab-btn px-6 py-2 text-xs uppercase tracking-wider whitespace-nowrap">Detalle por Tienda</button>
+                <button onclick="switchTab('investment')" id="tab-investment" class="tab-btn px-6 py-2 text-xs uppercase tracking-wider whitespace-nowrap text-blue-600">Indicador de Inversión y Stock</button>
+            </div>
+        </header>
+
+        <!-- TAB: RESUMEN GENERAL -->
+        <div id="content-summary">
+            <div class="mb-4 flex flex-col md:flex-row gap-4 justify-between items-center">
+                <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-100 flex gap-2 items-center">
+                    <button onclick="setFilter('all')" id="btn-all" class="filter-btn active px-3 py-1.5 text-[11px] font-medium border rounded-md transition-all">Todos</button>
+                    <button onclick="setFilter('shortage')" id="btn-shortage" class="filter-btn px-3 py-1.5 text-[11px] font-medium border border-red-200 text-red-600 rounded-md transition-all">Déficit (Compra)</button>
+                    <button onclick="setFilter('surplus')" id="btn-surplus" class="filter-btn px-3 py-1.5 text-[11px] font-medium border border-cyan-200 text-cyan-600 rounded-md transition-all">Stock Sobrante</button>
+                </div>
+                <input type="text" id="searchInput" placeholder="Buscar equipo..." class="w-full md:max-w-xs px-4 py-1.5 text-sm border border-gray-300 rounded-md outline-none">
+            </div>
+            <div class="table-container">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse" id="inventoryTable">
+                        <thead>
+                            <tr class="farmatodo-blue text-white uppercase text-[10px] tracking-wider">
+                                <th class="px-6 py-4 font-bold">Equipo</th>
+                                <th class="px-4 py-4 text-center">Inv. Inicial</th>
+                                <th class="px-4 py-4 text-center">Recibidos</th>
+                                <th class="px-4 py-4 text-center">En Tránsito</th>
+                                <th class="px-4 py-4 text-center">Consumo</th>
+                                <th class="px-4 py-4 text-center">Plan Proyecto</th>
+                                <th class="px-4 py-4 text-center bg-blue-900">Estatus de Inventario</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="mt-4 flex gap-6 text-[10px] uppercase font-bold text-gray-500">
+                <div class="flex items-center gap-2"><span class="w-3 h-3 bg-red-100 border border-red-400 rounded"></span> Déficit Requerido</div>
+                <div class="flex items-center gap-2"><span class="w-3 h-3 bg-cyan-100 border border-cyan-400 rounded"></span> Stock Sobrante (Próximas Tiendas)</div>
+            </div>
         </div>
-    </header>
 
-    <!-- Main Content Area -->
-    <main class="flex-grow flex items-stretch justify-center">
-        <div class="w-full max-w-4xl min-h-[500px] flex">
-            <!-- Contenedor de la diapositiva con la clase inicial de transición -->
-            <div id="slide-container" class="w-full slide-transition"></div>
+        <!-- TAB: DETALLE POR TIENDA -->
+        <div id="content-detailed" class="hidden">
+            <div class="mb-4 flex justify-end">
+                <input type="text" id="searchDetailedInput" oninput="renderDetailedTable()" placeholder="Filtrar por tienda o equipo..." class="w-full md:max-w-xs px-4 py-1.5 text-sm border border-gray-300 rounded-md outline-none">
+            </div>
+            <div class="table-container">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-[9px]" id="detailedTable">
+                        <thead>
+                            <tr class="farmatodo-blue text-white uppercase tracking-wider">
+                                <th class="px-3 py-4 font-bold header-sticky-col min-w-[180px]">Equipos</th>
+                                <th class="px-1 py-4 text-center">ISABELICA</th>
+                                <th class="px-1 py-4 text-center">MAIQUETIA</th>
+                                <th class="px-1 py-4 text-center">C. ACOSTA</th>
+                                <th class="px-1 py-4 text-center">CUMBRES</th>
+                                <th class="px-1 py-4 text-center">OBELISCO</th>
+                                <th class="px-1 py-4 text-center">ANITA</th>
+                                <th class="px-1 py-4 text-center">ORINOCO</th>
+                                <th class="px-1 py-4 text-center">PUNCERES</th>
+                                <th class="px-1 py-4 text-center">ARBOLITOS</th>
+                                <th class="px-1 py-4 text-center">MARACAIBO</th>
+                                <th class="px-1 py-4 text-center bg-blue-700">TIENDA 1</th>
+                                <th class="px-1 py-4 text-center bg-blue-700">TIENDA 2</th>
+                                <th class="px-1 py-4 text-center bg-indigo-700">MUDANZA 1</th>
+                                <th class="px-1 py-4 text-center bg-indigo-700">MUDANZA 2</th>
+                                <th class="px-1 py-4 text-center bg-indigo-800">MUDANZA 3</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </main>
 
-    <!-- Footer / Navigation Controls -->
-    <footer class="mt-6 flex justify-between items-center max-w-4xl mx-auto w-full">
-        <button
-            id="prev-btn"
-            onclick="navigateSlide(-1)"
-            class="flex items-center px-4 py-2 bg-gray-700 text-white font-semibold rounded-full shadow-lg border border-gray-600 transition duration-300 hover:bg-gray-600 hover:shadow-[0_0_15px_rgba(255,255,255,0.15)] disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled
-        >
-            <svg class="lucide w-5 h-5 mr-2" data-lucide="arrow-left"></svg>
-            Anterior
-        </button>
-
-        <div id="dots-container" class="flex space-x-2">
-            <!-- Los puntos de navegación se inyectarán aquí -->
-        </div>
-
-        <button
-            id="next-btn"
-            onclick="navigateSlide(1)"
-            class="flex items-center px-4 py-2 bg-blue-600 text-white font-semibold rounded-full shadow-lg transition duration-300 hover:bg-blue-700 hover:shadow-[0_0_15px_rgba(59,130,246,0.6)]"
-            style="box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);"
-        >
-            Siguiente
-            <svg class="lucide w-5 h-5 ml-2" data-lucide="arrow-right"></svg>
-        </button>
-    </footer>
-
-    <!-- JavaScript para la lógica de la presentación -->
-    <script>
-        let currentSlide = 0;
-        
-        // Contenido de las diapositivas (total 5)
-        const slidesContent = [
-            {
-                title: "Propuesta de Dashboard de Gestión",
-                subtitle: "Unificando la visibilidad de OPEX, CAPEX e ITAM",
-                icon: "aperture",
-                content: `
-                    <h3 class="text-xl font-semibold text-blue-400 mb-4">El Problema y la Solución</h3>
-                    <div class="space-y-4">
-                        <p class="p-4 bg-gray-700/70 border-l-4 border-red-500 rounded-lg shadow-lg">
-                            <b>El Problema:</b> La información de Operaciones, Inversiones y Activos de TI está fragmentada, dificultando la toma de decisiones ágil y la detección de riesgos.
-                        </p>
-                        <p class="p-4 bg-gray-700/70 border-l-4 border-blue-500 rounded-lg shadow-lg">
-                             <b>Nuestra Solución:</b> Un </b>Dashboard de Gestión en tiempo real</b> que unifica estas áreas, permitiendo <b>monitorear el desempeño</b> y <b>detectar riesgos</b> inmediatamente desde una fuente única.
-                        </p>
-                    </div>
-                `
-            },
-            {
-                title: "Indicadores Clave de OPEX (Gastos Operacionales)",
-                subtitle: "Monitoreo del Consumo y Variación Presupuestaria",
-                icon: "dollar-sign",
-                kpis: [
-                    { name: "Presupuesto Mensual", description: "Monto total asignado para el mes. Base de control.", color: "bg-green-600", icon: "gauge", glowClass: "shadow-green" },
-                    { name: "Gasto Real Mensual", description: "Consumo efectivo de recursos operacionales (ej. salarios, arriendos).", color: "bg-blue-600", icon: "briefcase", glowClass: "shadow-blue" },
-                    { name: "Variación vs Presupuesto", description: "Mide la diferencia ($) entre lo gastado y lo presupuestado. Alerta inmediata sobre excedentes.", color: "bg-red-600", icon: "trending-up", glowClass: "shadow-red" },
-                ],
-                content: `
-                    <div class="mt-6 text-gray-300">
-                        <p class="text-blue-300 font-semibold mb-2">Función Principal:</p>
-                        <p>Alertar inmediatamente si se está por encima o por debajo del presupuesto para ajustar la gestión de costos por concepto y proveedor, impulsando la eficiencia operativa.</p>
-                    </div>
-                `
-            },
-            {
-                title: "Indicadores Clave de CAPEX (Inversiones de Capital)",
-                subtitle: "Seguimiento y Ejecución de Proyectos de Inversión",
-                icon: "target",
-                kpis: [
-                    { name: "Presupuesto Mensual / Real", description: "Ejecución financiera de proyectos grandes (ej. nuevas tiendas, infraestructura IT).", color: "bg-green-600", icon: "corner-up-right", glowClass: "shadow-green" },
-                    { name: "Calendario Proyectado", description: "Visualización de la inversión planificada a futuro por trimestre o mes.", color: "bg-yellow-600", icon: "clock", glowClass: "shadow-yellow" },
-                ],
-                content: `
-                    <div class="mt-6 text-gray-300">
-                        <p class="text-blue-300 font-semibold mb-2">Función Principal:</p>
-                        <p>Asegurar que la inversión de capital se ejecute en el tiempo y monto previstos, minimizando retrasos en la expansión o modernización de la empresa.</p>
-                    </div>
-                `
-            },
-            {
-                title: "Indicadores Clave de ITAM (Gestión de Activos de TI)",
-                subtitle: "Eficiencia, Riesgo y Costo del Inventario Tecnológico",
-                icon: "cpu",
-                kpis: [
-                    { name: "Precisión de Inventario (%)", description: "Mide la exactitud de los registros físicos de activos de TI.", color: "bg-blue-600", icon: "gauge", glowClass: "shadow-blue" },
-                    { name: "Activos EOL (%)", description: "Porcentaje de hardware que ha llegado a su Fin de Vida Útil (Riesgo).", color: "bg-red-600", icon: "cpu", glowClass: "shadow-red" },
-                    { name: "Costo Total de Propiedad (TCO)", description: "Costo total del activo durante toda su vida útil (compra + operación).", color: "bg-teal-500", icon: "dollar-sign", glowClass: "shadow-teal" },
-                    { name: "MTBF / Uso Capacidad", description: "Tiempo medio entre fallas y porcentaje de uso de sistemas críticos.", color: "bg-purple-600", icon: "server", glowClass: "shadow-purple" },
-                ],
-                content: `
-                    <div class="mt-6 text-gray-300">
-                        <p class="text-blue-300 font-semibold mb-2">Función Principal:</p>
-                        <p>Planificar reemplazos, gestionar el riesgo de seguridad (EOL) y optimizar el gasto de capital futuro basándose en el TCO y la eficiencia operativa.</p>
-                    </div>
-                `
-            },
-            {
-                title: "Tecnologías Clave del Dashboard",
-                subtitle: "Una Arquitectura Ágil y en Tiempo Real",
-                icon: "aperture",
-                content: `
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                        <div class="p-5 bg-gray-700 rounded-xl shadow-xl transition-all duration-300 hover:shadow-[0_0_25px_rgba(37,99,235,0.6)]">
-                            <h4 class="font-bold text-xl text-blue-400">Frontend (App Web)</h4>
-                            <p class="text-sm text-gray-300"><b>React (JSX) y Tailwind CSS.</b> Interfaz modular, rápida y totalmente responsive para cualquier dispositivo.</p>
-                        </div>
-                        <div class="p-5 bg-gray-700 rounded-xl shadow-xl transition-all duration-300 hover:shadow-[0_0_25px_rgba(252,211,77,0.6)]">
-                            <h4 class="font-bold text-xl text-yellow-400">Base de Datos (Fuente de la Verdad)</h4>
-                            <p class="text-sm text-gray-300"><b>Google Cloud Firestore (NoSQL).</b> Permite la <b>sincronización en tiempo real</b> (<code>onSnapshot</code>) para que los gráficos se actualicen al instante (Modelo No-Code).</p>
-                        </div>
-                        <div class="p-5 bg-gray-700 rounded-xl shadow-xl col-span-2 transition-all duration-300 hover:shadow-[0_0_25px_rgba(16,185,129,0.6)]">
-                            <h4 class="font-bold text-xl text-green-400">Visualización</h4>
-                            <p class="text-sm text-gray-300"><b>Chart.js</b> para gráficos y <b>Lucide Icons</b> para la iconografía profesional.</p>
-                        </div>
-                    </div>
-                `
-            }
-        ];
-
-        const totalSlides = slidesContent.length;
-
-        // Función para renderizar la tarjeta de la diapositiva
-        function renderSlideCard(slide) {
-            let kpisHtml = '';
-            if (slide.kpis) {
-                kpisHtml = `
-                    <div class="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
-                        ${slide.kpis.map(kpi => `
-                            <div 
-                                class="${kpi.color} text-white p-5 rounded-xl shadow-lg transition duration-500 transform hover:scale-[1.05] ${kpi.glowClass}"
-                            >
-                                <div class="flex items-center mb-2">
-                                    <svg class="lucide w-6 h-6 mr-2" data-lucide="${kpi.icon}"></svg>
-                                    <h4 class="text-xl font-bold">${kpi.name}</h4>
-                                </div>
-                                <p class="text-sm opacity-90">${kpi.description}</p>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            // Uso de innerHTML para renderizar todo el contenido de la diapositiva
-            return `
-                <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full flex flex-col justify-between border border-gray-700 transform transition-all duration-500 slide-card-hover">
-                    <div>
-                        <div class="flex items-center text-blue-400 mb-4">
-                            <svg class="lucide w-8 h-8 mr-3" data-lucide="${slide.icon}"></svg>
-                            <h2 class="text-3xl font-extrabold text-white">${slide.title}</h2>
-                        </div>
-                        <p class="text-xl text-gray-400 border-b border-gray-700 pb-4 mb-6">${slide.subtitle}</p>
-
-                        <div class="text-gray-200 text-lg">
-                            ${slide.content}
-                        </div>
-
-                        ${kpisHtml}
+        <!-- TAB: INVERSIÓN (GRÁFICA) -->
+        <div id="content-investment" class="hidden">
+            <!-- Sección de inversión similar a la anterior -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
+                    <h3 class="text-sm font-bold text-gray-500 uppercase mb-4">Inversión vs. Activos en Stock (USD)</h3>
+                    <div class="h-[400px]">
+                        <canvas id="investmentChart"></canvas>
                     </div>
                 </div>
-            `;
+                <div class="flex flex-col gap-6">
+                    <div class="bg-blue-600 p-6 rounded-xl shadow-lg text-white">
+                        <h3 class="text-xs uppercase font-bold opacity-80 mb-1">Inversión Pendiente</h3>
+                        <p class="text-3xl font-bold" id="totalInvestmentLabel">$0.00</p>
+                    </div>
+                    <div class="bg-cyan-600 p-6 rounded-xl shadow-lg text-white">
+                        <h3 class="text-xs uppercase font-bold opacity-80 mb-1">Valor en Stock (Sobrante)</h3>
+                        <p class="text-3xl font-bold" id="totalSurplusLabel">$0.00</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Tabla de inversión se mantiene operativa -->
+            <div class="table-container">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse" id="investmentTable">
+                        <thead>
+                            <tr class="bg-gray-800 text-white uppercase text-[10px]">
+                                <th class="px-6 py-3">Equipo</th>
+                                <th class="px-4 py-3 text-right">Costo Unitario ($)</th>
+                                <th class="px-4 py-3 text-center">Unidades</th>
+                                <th class="px-4 py-3 text-center">Condición</th>
+                                <th class="px-4 py-3 text-right bg-gray-700">Valorización ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos para el resumen general
+        const summaryData = [
+            ["ACCESS POINT MERAKI", 21, 0, 18, 21, 21, -3],
+            ["BASE DE LECTORA DE PRECIOS CC6600", 36, 0, 5, 35, 20, -14],
+            ["BIOMETRICO ASISTENCIAL", 3, 0, 5, 6, 7, -5],
+            ["CABLE DE GAVETA 2 METROS", 0, 0, 0, 45, 49, -94],
+            ["CABLE EXENTRICO", 280, 0, 0, 88, 105, 87],
+            ["CABLE PINPAD USB", 96, 0, 0, 88, 105, -97],
+            ["CABLE PROLIFIC", 280, 0, 0, 88, 105, 87],
+            ["CABLE USB TIPO-C HAND HELD", 16, 0, 0, 14, 14, -12],
+            ["CARGADOR DE CUNA HAND HELD", 16, 0, 0, 14, 14, -12],
+            ["CARGADOR DE IMPRESORA PORTATIL", 8, 0, 19, 13, 14, 0],
+            ["CARGADOR DE LECTORA DE PRECIOS", 26, 0, 15, 35, 35, -29],
+            ["CARGADOR MERAKI", 9, 0, 0, 7, 7, -5],
+            ["TUBO DE CAJA", 300, 0, 0, 66, 71, 163],
+            ["CPU CAJA ALL IN ONE 3NSTAR PTE0912", 96, 0, 0, 60, 74, -38],
+            ["CPU ESTACIÓN OPTIPLEX 3080", 4, 0, 0, 10, 8, -14],
+            ["CPU ESTACIÓN BEELINK", 20, 0, 0, 15, 24, -19],
+            ["CUNA DE HANDHELD", 16, 0, 0, 12, 8, -4],
+            ["ESCANER", 127, 0, 0, 59, 74, -6],
+            ["CABLE DE ESCANER", 56, 0, 0, 59, 74, -77],
+            ["FORRO DE HAND HELD", 0, 20, 0, 26, 28, -34],
+            ["FORRO IMPRESORA PORTATIL", 16, 0, 0, 13, 14, -11],
+            ["GAVETA 3NSTAR", 54, 30, 0, 42, 49, -7],
+            ["HAND HELD", 4, 20, 0, 25, 22, -23],
+            ["HKA", 380, 0, 0, 88, 105, 187],
+            ["IMPRESORA FISCAL SRP812", 380, 0, 0, 88, 105, 187],
+            ["IMPRESORA PORTATIL", 6, 19, 19, 13, 14, 17],
+            ["LECTORA ZEBRA", 32, 10, 15, 35, 35, -13],
+            ["MERAKI CISCO MX67", 8, 0, 0, 7, 7, -6],
+            ["MONITOR DE ESTACION", 0, 0, 0, 25, 32, -57],
+            ["BIOPAGO", 70, 0, 0, 96, 105, -131],
+            ["PIN PAD P200", 96, 0, 0, 96, 105, -105],
+            ["PROTECTOR DE PANTALLA HAND HELD", 0, 0, 0, 26, 28, -54],
+            ["SERVIDOR", 8, 0, 0, 6, 7, -5],
+            ["SWITCH CISCO 48 PUERTOS", 4, 5, 0, 7, 10, -8],
+            ["TECLADO +MOUSE USB", 0, 0, 0, 24, 32, -56],
+            ["TELEFONO IP CISCO 7821", 12, 0, 0, 18, 25, -31],
+            ["VISOR DE PRECIO 3NSTAR", 200, 0, 0, 58, 70, 72],
+            ["BIOPAGO 2", 150, 0, 0, 97, 105, -52],
+            ["AUTOSERVICIO", 0, 9, 0, 5, 3, 1]
+        ];
+
+        // Datos para el detalle por tienda (Actualizado según requerimiento)
+        const detailedData = [
+            ["ACCESS POINT MERAKI", 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+            ["BASE DE LECTORA DE PRECIOS CC6600", 5, 5, 5, 5, 5, 5, 5, 0, 5, 5, 5, 5, 0, 0, 0],
+            ["BIOMETRICO ASISTENCIAL", 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ["CABLE DE GAVETA 2 METROS", 8, 9, 7, 7, 7, 0, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            ["CABLE EXENTRICO", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["CABLE PINPAD USB", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["CABLE PROLIFIC", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["CABLE USB TIPO-C HAND HELD TC210K", 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["CARGADOR DE CUNA HAND HELD TC210K", 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["CARGADOR DE IMPRESORA PORTATIL ZQ620", 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["CARGADOR DE LECTORA DE PRECIOS CC6600", 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            ["CARGADOR MERAKI", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ["TUBO DE CAJA", 9, 11, 9, 9, 11, 8, 9, 9, 9, 11, 11, 11, 9, 9, 9],
+            ["CPU CAJA ALL IN ONE 3NSTAR PTE0912", 9, 11, 9, 9, 11, 2, 9, 10, 10, 11, 11, 11, 10, 10, 10],
+            ["CPU ESTACIÓN OPTIPLEX 3080", 2, 2, 2, 2, 2, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0],
+            ["CPU ESTACIÓN BEELINK", 2, 2, 2, 2, 2, 1, 4, 4, 4, 3, 3, 3, 4, 4, 4],
+            ["CUNA DE HANDHELD TC210K", 2, 2, 2, 2, 2, 0, 2, 0, 0, 2, 2, 2, 0, 0, 0],
+            ["ESCANER ZEBRA DS9308", 9, 11, 9, 9, 11, 1, 9, 10, 10, 11, 11, 11, 10, 10, 10],
+            ["CABLE DE ESCANER ZEBRA DS9308", 9, 11, 9, 9, 11, 1, 9, 10, 10, 11, 11, 11, 10, 10, 10],
+            ["FORRO DE HAND HELD TC210K", 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            ["FORRO IMPRESORA PORTATIL ZQ620", 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["GAVETA 3NSTAR", 7, 7, 7, 7, 7, 0, 7, 7, 7, 7, 7, 7, 7, 7, 7],
+            ["HAND HELD TC210K", 4, 3, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 2, 2, 2],
+            ["HKA", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["IMPRESORA FISCAL SRP812", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["IMPRESORA PORTATIL ZEBRA ZQ620", 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["LECTORA ZEBRA CC6600", 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            ["MERAKI CISCO MX67", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ["MONITOR DE ESTACION", 5, 4, 4, 4, 4, 0, 4, 4, 4, 5, 5, 5, 4, 4, 4],
+            ["BIOPAGO", 14, 16, 13, 13, 16, 12, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["PIN PAD P200", 14, 16, 13, 13, 16, 12, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["PROTECTOR DE PANTALLA HAND HELD TC210K", 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            ["SERVIDOR DELL R450", 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ["SWITCH CISCO 48 PUERTOS", 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1],
+            ["TECLADO +MOUSE USB", 4, 4, 4, 4, 4, 0, 4, 4, 4, 5, 5, 5, 4, 4, 4],
+            ["TELEFONO IP CISCO 7821", 3, 3, 3, 3, 3, 0, 3, 3, 3, 4, 4, 4, 3, 3, 3],
+            ["VISOR DE PRECIO 3NSTAR", 9, 10, 9, 9, 11, 1, 9, 10, 10, 10, 10, 10, 10, 10, 10],
+            ["AUTOSERVICIO", 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+        ];
+
+        const costMapping = {
+            "CABLE EXENTRICO": 20, "CABLE PROLIFIC": 20, "HKA": 435, "IMPRESORA FISCAL SRP812": 722,
+            "IMPRESORA PORTATIL": 550, "VISOR DE PRECIO 3NSTAR": 182, "TUBO DE CAJA": 110, "AUTOSERVICIO": 6234
+        };
+
+        let currentFilter = 'all';
+        let investmentChartInstance = null;
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            
+            document.getElementById('content-summary').classList.add('hidden');
+            document.getElementById('content-detailed').classList.add('hidden');
+            document.getElementById('content-investment').classList.add('hidden');
+            
+            document.getElementById(`content-${tabId}`).classList.remove('hidden');
+
+            if (tabId === 'detailed') renderDetailedTable();
+            if (tabId === 'investment') renderInvestmentTab();
         }
 
-        // Función principal para dibujar la diapositiva actual con transición
-        function drawSlide(index) {
-            const slideContainer = document.getElementById('slide-container');
-            const slideIndicator = document.getElementById('slide-indicator');
-            const prevBtn = document.getElementById('prev-btn');
-            const nextBtn = document.getElementById('next-btn');
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(`btn-${filter}`).classList.add('active');
+            renderSummaryTable();
+        }
 
-            // 1. Iniciar la transición de salida (Fade out: la opacidad se reduce a 0)
-            slideContainer.classList.remove('slide-transition-active');
-            
-            // 2. Esperar 500ms (tiempo de la transición CSS) antes de cambiar el contenido
-            setTimeout(() => {
-                const slide = slidesContent[index];
+        function renderSummaryTable() {
+            const tbody = document.querySelector('#inventoryTable tbody');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            tbody.innerHTML = '';
+
+            summaryData.forEach(item => {
+                const [name, init, rec, trans, cons, req, pending] = item;
+                if (!name.toLowerCase().includes(search)) return;
                 
-                // 3. Cambiar el contenido HTML
-                slideContainer.innerHTML = renderSlideCard(slide);
+                if (currentFilter === 'shortage' && pending >= 0) return;
+                if (currentFilter === 'surplus' && pending <= 0) return;
 
-                // Actualizar indicador y botones
-                slideIndicator.textContent = `Diapositiva ${index + 1} de ${totalSlides}`;
-                prevBtn.disabled = index === 0;
-                nextBtn.disabled = index === totalSlides - 1;
+                const row = document.createElement('tr');
+                row.className = "hover:bg-gray-50 text-[11px]";
+                
+                let statusText = '';
+                let bgClass = '';
+                let textClass = '';
 
-                // Actualizar el efecto de sombra del botón Siguiente
-                nextBtn.style.boxShadow = index === totalSlides - 1 
-                    ? 'none' 
-                    : '0 0 15px rgba(59, 130, 246, 0.4)';
-
-                // Re-crear íconos de Lucide
-                if (window.createLucideIcons) {
-                    window.createLucideIcons();
+                if (pending < 0) {
+                    statusText = `${Math.abs(pending)} (DÉFICIT)`;
+                    bgClass = 'bg-red-50';
+                    textClass = 'text-red-700 font-bold';
+                } else if (pending > 0) {
+                    statusText = `${pending} (SOBRANTE)`;
+                    bgClass = 'bg-cyan-50';
+                    textClass = 'text-cyan-700 font-bold';
+                } else {
+                    statusText = '0 (SALDO)';
+                    bgClass = 'bg-gray-50';
+                    textClass = 'text-gray-400';
                 }
 
-                // Actualizar puntos de navegación
-                drawDots(index);
-
-                // 4. Iniciar la transición de entrada (Fade in: la opacidad vuelve a 1)
-                slideContainer.classList.add('slide-transition-active');
-            }, 500); 
-        }
-
-        // Función para los puntos de navegación
-        function drawDots(activeIndex) {
-            const dotsContainer = document.getElementById('dots-container');
-            dotsContainer.innerHTML = '';
-            slidesContent.forEach((_, index) => {
-                const dot = document.createElement('div');
-                dot.className = `w-3 h-3 rounded-full transition-colors duration-200 cursor-pointer ${
-                    index === activeIndex 
-                        ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,1)]' 
-                        : 'bg-gray-600 hover:bg-gray-500'
-                }`;
-                dot.onclick = () => {
-                    currentSlide = index;
-                    drawSlide(currentSlide);
-                };
-                dotsContainer.appendChild(dot);
+                row.innerHTML = `<td class="px-6 py-3 font-semibold sticky-col">${name}</td>
+                    <td class="text-center">${init}</td><td class="text-center">${rec}</td>
+                    <td class="text-center">${trans}</td><td class="text-center">${cons}</td>
+                    <td class="text-center">${req}</td>
+                    <td class="text-center ${textClass} ${bgClass} border-l border-gray-100">${statusText}</td>`;
+                tbody.appendChild(row);
             });
         }
 
-        // Función para navegar entre diapositivas
-        window.navigateSlide = function(direction) {
-            const newIndex = currentSlide + direction;
-            if (newIndex >= 0 && newIndex < totalSlides) {
-                currentSlide = newIndex;
-                drawSlide(currentSlide);
-            }
-        };
+        function renderDetailedTable() {
+            const tbody = document.querySelector('#detailedTable tbody');
+            const search = document.getElementById('searchDetailedInput').value.toLowerCase();
+            tbody.innerHTML = '';
 
-        // Inicialización al cargar la página
-        window.onload = function() {
-            // Se asegura de que la primera diapositiva se dibuje y active la clase de transición
-            drawSlide(currentSlide);
+            detailedData.forEach(item => {
+                const name = item[0];
+                if (!name.toLowerCase().includes(search)) return;
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-gray-50 text-center";
+                
+                let cells = `<td class="px-3 py-3 font-semibold text-left sticky-col">${name}</td>`;
+                for (let i = 1; i < item.length; i++) {
+                    const val = item[i];
+                    // Resaltar cantidades significativas
+                    const bg = val > 10 ? 'bg-blue-50/50 font-semibold' : '';
+                    const color = val === 0 ? 'text-gray-300' : 'text-gray-700';
+                    cells += `<td class="px-1 py-3 ${bg} ${color}">${val}</td>`;
+                }
+                
+                row.innerHTML = cells;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderInvestmentTab() {
+            const tbody = document.querySelector('#investmentTable tbody');
+            tbody.innerHTML = '';
+            let totalInvestment = 0;
+            let totalSurplus = 0;
+
+            const displayData = summaryData.map(item => {
+                const name = item[0];
+                const qty = item[6];
+                let unitCost = costMapping[name] || 0;
+                
+                const originalCosts = [
+                    ["ACCESS POINT MERAKI", 289.52], ["BASE DE LECTORA DE PRECIOS CC6600", 120], ["BIOMETRICO ASISTENCIAL", 2148],
+                    ["CABLE DE GAVETA 2 METROS", 10], ["CABLE PINPAD USB", 20], ["CABLE USB TIPO-C HAND HELD", 10],
+                    ["CPU CAJA ALL IN ONE 3NSTAR PTE0912", 1534], ["CPU ESTACIÓN BEELINK", 190], ["ESCANER", 60],
+                    ["FORRO DE HAND HELD", 25], ["FORRO IMPRESORA PORTATIL", 40], ["GAVETA 3NSTAR", 90],
+                    ["HAND HELD", 330], ["LECTORA ZEBRA", 410], ["MERAKI CISCO MX67", 741], ["MONITOR DE ESTACION", 150],
+                    ["BIOPAGO", 100.44], ["PIN PAD P200", 288], ["PROTECTOR DE PANTALLA HAND HELD", 25],
+                    ["SERVIDOR", 3781], ["SWITCH CISCO 48 PUERTOS", 1377.9], ["TECLADO +MOUSE USB", 20],
+                    ["TELEFONO IP CISCO 7821", 169], ["BIOPAGO 2", 100.44]
+                ].find(i => i[0] === name);
+
+                if (originalCosts) unitCost = originalCosts[1];
+
+                const valorization = Math.abs(qty) * unitCost;
+                return { name, unitCost, qty, valorization };
+            }).filter(i => i.valorization > 0);
+
+            displayData.forEach(item => {
+                if (item.qty < 0) totalInvestment += item.valorization;
+                else totalSurplus += item.valorization;
+
+                const row = document.createElement('tr');
+                row.className = "hover:bg-gray-50";
+                const isSurplus = item.qty > 0;
+                
+                row.innerHTML = `
+                    <td class="px-6 py-3 font-medium text-gray-700">${item.name}</td>
+                    <td class="px-4 py-3 text-right text-gray-500">$ ${item.unitCost.toLocaleString()}</td>
+                    <td class="px-4 py-3 text-center">${Math.abs(item.qty)}</td>
+                    <td class="px-4 py-3 text-center">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isSurplus ? 'bg-cyan-100 text-cyan-700' : 'bg-red-100 text-red-700'}">
+                            ${isSurplus ? 'STOCK DISPONIBLE' : 'POR COMPRAR'}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right font-bold ${isSurplus ? 'text-cyan-700 bg-cyan-50/20' : 'text-red-700 bg-red-50/20'}">$ ${item.valorization.toLocaleString()}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            document.getElementById('totalInvestmentLabel').innerText = `$ ${totalInvestment.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('totalSurplusLabel').innerText = `$ ${totalSurplus.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+
+            renderChart(displayData);
+        }
+
+        function renderChart(data) {
+            const ctx = document.getElementById('investmentChart').getContext('2d');
+            if (investmentChartInstance) investmentChartInstance.destroy();
+
+            const topShortage = data.filter(i => i.qty < 0).sort((a,b) => b.valorization - a.valorization).slice(0, 5);
+            const topSurplus = data.filter(i => i.qty > 0).sort((a,b) => b.valorization - a.valorization).slice(0, 5);
+            
+            const combinedLabels = [...topShortage.map(i => i.name), ...topSurplus.map(i => i.name)];
+            const shortageValues = [...topShortage.map(i => i.valorization), ...topSurplus.map(i => 0)];
+            const surplusValues = [...topShortage.map(i => 0), ...topSurplus.map(i => i.valorization)];
+
+            investmentChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: combinedLabels,
+                    datasets: [
+                        { label: 'Déficit (Inversión)', data: shortageValues, backgroundColor: '#ef4444', borderRadius: 4 },
+                        { label: 'Sobrante (Stock)', data: surplusValues, backgroundColor: '#0891b2', borderRadius: 4 }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } },
+                    scales: { 
+                        x: { stacked: true, ticks: { font: { size: 9 } } },
+                        y: { stacked: true, ticks: { font: { size: 9 } } }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('searchInput').addEventListener('input', renderSummaryTable);
+        window.onload = () => {
+            renderSummaryTable();
         };
-        
-        // CORRECCIÓN: Si el drawSlide tiene setTimeout, debemos asegurar la primera aparición
-        // Nota: La llamada inicial a drawSlide ya maneja la transición de entrada (paso 4).
     </script>
 </body>
 </html>
-
-
