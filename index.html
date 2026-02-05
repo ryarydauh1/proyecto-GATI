@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario TI - Gestión Fiscal e Inversión</title>
+    <title>Inventario TI - Sincronización Autoservicios</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -20,14 +20,13 @@
 <body class="p-4 md:p-8">
 
     <div class="max-w-full mx-auto">
-        <!-- Header -->
+        <!-- Cabecera -->
         <header class="mb-6 flex flex-col lg:flex-row lg:items-end justify-between gap-6">
             <div>
                 <h1 class="text-3xl font-bold text-gray-800">Farmatodo <span class="text-blue-700">Venezuela</span></h1>
-                <p class="text-gray-500 font-medium text-sm">Dashboard de Activos TI & Gestión de Stock Sobrante</p>
+                <p class="text-gray-500 font-medium text-sm">Control de Activos TI - Plan de Expansión</p>
             </div>
             
-            <!-- Navigation Tabs -->
             <div class="flex border-b border-gray-200 overflow-x-auto">
                 <button onclick="switchTab('summary')" id="tab-summary" class="tab-btn active px-6 py-2 text-xs uppercase tracking-wider whitespace-nowrap">Resumen General</button>
                 <button onclick="switchTab('detailed')" id="tab-detailed" class="tab-btn px-6 py-2 text-xs uppercase tracking-wider whitespace-nowrap">Detalle por Tienda</button>
@@ -35,13 +34,16 @@
             </div>
         </header>
 
-        <!-- TAB: RESUMEN GENERAL -->
+        <!-- PESTAÑA: RESUMEN GENERAL -->
         <div id="content-summary">
             <div class="mb-4 flex flex-col md:flex-row gap-4 justify-between items-center">
                 <div class="bg-white p-2 rounded-lg shadow-sm border border-gray-100 flex gap-2 items-center">
                     <button onclick="setFilter('all')" id="btn-all" class="filter-btn active px-3 py-1.5 text-[11px] font-medium border rounded-md transition-all">Todos</button>
-                    <button onclick="setFilter('shortage')" id="btn-shortage" class="filter-btn px-3 py-1.5 text-[11px] font-medium border border-red-200 text-red-600 rounded-md transition-all">Déficit (Compra)</button>
-                    <button onclick="setFilter('surplus')" id="btn-surplus" class="filter-btn px-3 py-1.5 text-[11px] font-medium border border-cyan-200 text-cyan-600 rounded-md transition-all">Stock Sobrante</button>
+                    <button onclick="setFilter('shortage')" id="btn-shortage" class="filter-btn px-3 py-1.5 text-[11px] font-medium border border-red-200 text-red-600 rounded-md transition-all">Déficit</button>
+                    <button onclick="setFilter('surplus')" id="btn-surplus" class="filter-btn px-3 py-1.5 text-[11px] font-medium border border-cyan-200 text-cyan-600 rounded-md transition-all">Sobrante</button>
+                </div>
+                <div class="text-[10px] text-gray-500 font-bold italic">
+                    * El Plan Proyecto suma 1 unidad por tienda (Orinoco a Mudanza 3)
                 </div>
                 <input type="text" id="searchInput" placeholder="Buscar equipo..." class="w-full md:max-w-xs px-4 py-1.5 text-sm border border-gray-300 rounded-md outline-none">
             </div>
@@ -54,25 +56,24 @@
                                 <th class="px-4 py-4 text-center">Inv. Inicial</th>
                                 <th class="px-4 py-4 text-center">Recibidos</th>
                                 <th class="px-4 py-4 text-center">En Tránsito</th>
-                                <th class="px-4 py-4 text-center">Consumo</th>
-                                <th class="px-4 py-4 text-center">Plan Proyecto</th>
-                                <th class="px-4 py-4 text-center bg-blue-900">Estatus de Inventario</th>
+                                <th class="px-4 py-4 text-center">Consumo Real</th>
+                                <th class="px-4 py-4 text-center bg-blue-800">Plan Proyecto (9 Tiendas)</th>
+                                <th class="px-4 py-4 text-center bg-blue-900">Estatus Final</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200"></tbody>
                     </table>
                 </div>
             </div>
-            <div class="mt-4 flex gap-6 text-[10px] uppercase font-bold text-gray-500">
-                <div class="flex items-center gap-2"><span class="w-3 h-3 bg-red-100 border border-red-400 rounded"></span> Déficit Requerido</div>
-                <div class="flex items-center gap-2"><span class="w-3 h-3 bg-cyan-100 border border-cyan-400 rounded"></span> Stock Sobrante (Próximas Tiendas)</div>
-            </div>
         </div>
 
-        <!-- TAB: DETALLE POR TIENDA -->
+        <!-- PESTAÑA: DETALLE POR TIENDA -->
         <div id="content-detailed" class="hidden">
-            <div class="mb-4 flex justify-end">
-                <input type="text" id="searchDetailedInput" oninput="renderDetailedTable()" placeholder="Filtrar por tienda o equipo..." class="w-full md:max-w-xs px-4 py-1.5 text-sm border border-gray-300 rounded-md outline-none">
+            <div class="mb-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-[11px] bg-green-50 border border-green-200 p-2 rounded text-green-800">
+                    <strong>Ajuste Aplicado:</strong> Se ha asignado 1 unidad de Autoservicio a cada tienda del proyecto (Columnas Azules/Indigo).
+                </div>
+                <input type="text" id="searchDetailedInput" oninput="renderDetailedTable()" placeholder="Filtrar equipos..." class="w-full md:max-w-xs px-4 py-1.5 text-sm border border-gray-300 rounded-md outline-none">
             </div>
             <div class="table-container">
                 <div class="overflow-x-auto">
@@ -80,16 +81,16 @@
                         <thead>
                             <tr class="farmatodo-blue text-white uppercase tracking-wider">
                                 <th class="px-3 py-4 font-bold header-sticky-col min-w-[180px]">Equipos</th>
-                                <th class="px-1 py-4 text-center">ISABELICA</th>
-                                <th class="px-1 py-4 text-center">MAIQUETIA</th>
-                                <th class="px-1 py-4 text-center">C. ACOSTA</th>
-                                <th class="px-1 py-4 text-center">CUMBRES</th>
-                                <th class="px-1 py-4 text-center">OBELISCO</th>
-                                <th class="px-1 py-4 text-center">ANITA</th>
-                                <th class="px-1 py-4 text-center">ORINOCO</th>
-                                <th class="px-1 py-4 text-center">PUNCERES</th>
-                                <th class="px-1 py-4 text-center">ARBOLITOS</th>
-                                <th class="px-1 py-4 text-center">MARACAIBO</th>
+                                <th class="px-1 py-4 text-center opacity-40">ISABELICA</th>
+                                <th class="px-1 py-4 text-center opacity-40">MAIQUETIA</th>
+                                <th class="px-1 py-4 text-center opacity-40">C. ACOSTA</th>
+                                <th class="px-1 py-4 text-center opacity-40">CUMBRES</th>
+                                <th class="px-1 py-4 text-center opacity-40">OBELISCO</th>
+                                <th class="px-1 py-4 text-center opacity-40">ANITA</th>
+                                <th class="px-1 py-4 text-center bg-blue-500">ORINOCO</th>
+                                <th class="px-1 py-4 text-center bg-blue-500">PUNCERES</th>
+                                <th class="px-1 py-4 text-center bg-blue-500">ARBOLITOS</th>
+                                <th class="px-1 py-4 text-center bg-blue-500">MARACAIBO</th>
                                 <th class="px-1 py-4 text-center bg-blue-700">TIENDA 1</th>
                                 <th class="px-1 py-4 text-center bg-blue-700">TIENDA 2</th>
                                 <th class="px-1 py-4 text-center bg-indigo-700">MUDANZA 1</th>
@@ -103,28 +104,28 @@
             </div>
         </div>
 
-        <!-- TAB: INVERSIÓN (GRÁFICA) -->
+        <!-- PESTAÑA: INVERSIÓN -->
         <div id="content-investment" class="hidden">
-            <!-- Sección de inversión similar a la anterior -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
-                    <h3 class="text-sm font-bold text-gray-500 uppercase mb-4">Inversión vs. Activos en Stock (USD)</h3>
+                    <h3 class="text-sm font-bold text-gray-500 uppercase mb-4">Valorización de Estatus Actualizado</h3>
                     <div class="h-[400px]">
                         <canvas id="investmentChart"></canvas>
                     </div>
                 </div>
                 <div class="flex flex-col gap-6">
-                    <div class="bg-blue-600 p-6 rounded-xl shadow-lg text-white">
-                        <h3 class="text-xs uppercase font-bold opacity-80 mb-1">Inversión Pendiente</h3>
+                    <div class="bg-red-600 p-6 rounded-xl shadow-lg text-white">
+                        <h3 class="text-xs uppercase font-bold opacity-80 mb-1">Inversión Necesaria (Déficit)</h3>
                         <p class="text-3xl font-bold" id="totalInvestmentLabel">$0.00</p>
+                        <span class="text-[10px] opacity-70">Costo total de equipos por adquirir</span>
                     </div>
-                    <div class="bg-cyan-600 p-6 rounded-xl shadow-lg text-white">
-                        <h3 class="text-xs uppercase font-bold opacity-80 mb-1">Valor en Stock (Sobrante)</h3>
+                    <div class="bg-emerald-600 p-6 rounded-xl shadow-lg text-white">
+                        <h3 class="text-xs uppercase font-bold opacity-80 mb-1">Capital en Stock (Sobrante)</h3>
                         <p class="text-3xl font-bold" id="totalSurplusLabel">$0.00</p>
+                        <span class="text-[10px] opacity-70">Valorización de equipos disponibles</span>
                     </div>
                 </div>
             </div>
-            <!-- Tabla de inversión se mantiene operativa -->
             <div class="table-container">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse" id="investmentTable">
@@ -132,9 +133,8 @@
                             <tr class="bg-gray-800 text-white uppercase text-[10px]">
                                 <th class="px-6 py-3">Equipo</th>
                                 <th class="px-4 py-3 text-right">Costo Unitario ($)</th>
-                                <th class="px-4 py-3 text-center">Unidades</th>
-                                <th class="px-4 py-3 text-center">Condición</th>
-                                <th class="px-4 py-3 text-right bg-gray-700">Valorización ($)</th>
+                                <th class="px-4 py-3 text-center bg-gray-700">Unidades (Estatus)</th>
+                                <th class="px-4 py-3 text-right bg-gray-900">Valorización ($)</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 text-sm"></tbody>
@@ -145,50 +145,7 @@
     </div>
 
     <script>
-        // Datos para el resumen general
-        const summaryData = [
-            ["ACCESS POINT MERAKI", 21, 0, 18, 21, 21, -3],
-            ["BASE DE LECTORA DE PRECIOS CC6600", 36, 0, 5, 35, 20, -14],
-            ["BIOMETRICO ASISTENCIAL", 3, 0, 5, 6, 7, -5],
-            ["CABLE DE GAVETA 2 METROS", 0, 0, 0, 45, 49, -94],
-            ["CABLE EXENTRICO", 280, 0, 0, 88, 105, 87],
-            ["CABLE PINPAD USB", 96, 0, 0, 88, 105, -97],
-            ["CABLE PROLIFIC", 280, 0, 0, 88, 105, 87],
-            ["CABLE USB TIPO-C HAND HELD", 16, 0, 0, 14, 14, -12],
-            ["CARGADOR DE CUNA HAND HELD", 16, 0, 0, 14, 14, -12],
-            ["CARGADOR DE IMPRESORA PORTATIL", 8, 0, 19, 13, 14, 0],
-            ["CARGADOR DE LECTORA DE PRECIOS", 26, 0, 15, 35, 35, -29],
-            ["CARGADOR MERAKI", 9, 0, 0, 7, 7, -5],
-            ["TUBO DE CAJA", 300, 0, 0, 66, 71, 163],
-            ["CPU CAJA ALL IN ONE 3NSTAR PTE0912", 96, 0, 0, 60, 74, -38],
-            ["CPU ESTACIÓN OPTIPLEX 3080", 4, 0, 0, 10, 8, -14],
-            ["CPU ESTACIÓN BEELINK", 20, 0, 0, 15, 24, -19],
-            ["CUNA DE HANDHELD", 16, 0, 0, 12, 8, -4],
-            ["ESCANER", 127, 0, 0, 59, 74, -6],
-            ["CABLE DE ESCANER", 56, 0, 0, 59, 74, -77],
-            ["FORRO DE HAND HELD", 0, 20, 0, 26, 28, -34],
-            ["FORRO IMPRESORA PORTATIL", 16, 0, 0, 13, 14, -11],
-            ["GAVETA 3NSTAR", 54, 30, 0, 42, 49, -7],
-            ["HAND HELD", 4, 20, 0, 25, 22, -23],
-            ["HKA", 380, 0, 0, 88, 105, 187],
-            ["IMPRESORA FISCAL SRP812", 380, 0, 0, 88, 105, 187],
-            ["IMPRESORA PORTATIL", 6, 19, 19, 13, 14, 17],
-            ["LECTORA ZEBRA", 32, 10, 15, 35, 35, -13],
-            ["MERAKI CISCO MX67", 8, 0, 0, 7, 7, -6],
-            ["MONITOR DE ESTACION", 0, 0, 0, 25, 32, -57],
-            ["BIOPAGO", 70, 0, 0, 96, 105, -131],
-            ["PIN PAD P200", 96, 0, 0, 96, 105, -105],
-            ["PROTECTOR DE PANTALLA HAND HELD", 0, 0, 0, 26, 28, -54],
-            ["SERVIDOR", 8, 0, 0, 6, 7, -5],
-            ["SWITCH CISCO 48 PUERTOS", 4, 5, 0, 7, 10, -8],
-            ["TECLADO +MOUSE USB", 0, 0, 0, 24, 32, -56],
-            ["TELEFONO IP CISCO 7821", 12, 0, 0, 18, 25, -31],
-            ["VISOR DE PRECIO 3NSTAR", 200, 0, 0, 58, 70, 72],
-            ["BIOPAGO 2", 150, 0, 0, 97, 105, -52],
-            ["AUTOSERVICIO", 0, 9, 0, 5, 3, 1]
-        ];
-
-        // Datos para el detalle por tienda (Actualizado según requerimiento)
+        // Datos de detalle por tienda (Actualizado: Autoservicio tiene 1 en todas las del plan)
         const detailedData = [
             ["ACCESS POINT MERAKI", 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
             ["BASE DE LECTORA DE PRECIOS CC6600", 5, 5, 5, 5, 5, 5, 5, 0, 5, 5, 5, 5, 0, 0, 0],
@@ -197,66 +154,133 @@
             ["CABLE EXENTRICO", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
             ["CABLE PINPAD USB", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
             ["CABLE PROLIFIC", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
-            ["CABLE USB TIPO-C HAND HELD TC210K", 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-            ["CARGADOR DE CUNA HAND HELD TC210K", 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-            ["CARGADOR DE IMPRESORA PORTATIL ZQ620", 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-            ["CARGADOR DE LECTORA DE PRECIOS CC6600", 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            ["CABLE USB TIPO-C HAND HELD", 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["CARGADOR DE CUNA HAND HELD", 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["CARGADOR DE IMPRESORA PORTATIL", 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["CARGADOR DE LECTORA DE PRECIOS", 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
             ["CARGADOR MERAKI", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             ["TUBO DE CAJA", 9, 11, 9, 9, 11, 8, 9, 9, 9, 11, 11, 11, 9, 9, 9],
             ["CPU CAJA ALL IN ONE 3NSTAR PTE0912", 9, 11, 9, 9, 11, 2, 9, 10, 10, 11, 11, 11, 10, 10, 10],
             ["CPU ESTACIÓN OPTIPLEX 3080", 2, 2, 2, 2, 2, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0],
             ["CPU ESTACIÓN BEELINK", 2, 2, 2, 2, 2, 1, 4, 4, 4, 3, 3, 3, 4, 4, 4],
-            ["CUNA DE HANDHELD TC210K", 2, 2, 2, 2, 2, 0, 2, 0, 0, 2, 2, 2, 0, 0, 0],
-            ["ESCANER ZEBRA DS9308", 9, 11, 9, 9, 11, 1, 9, 10, 10, 11, 11, 11, 10, 10, 10],
-            ["CABLE DE ESCANER ZEBRA DS9308", 9, 11, 9, 9, 11, 1, 9, 10, 10, 11, 11, 11, 10, 10, 10],
-            ["FORRO DE HAND HELD TC210K", 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-            ["FORRO IMPRESORA PORTATIL ZQ620", 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["CUNA DE HANDHELD", 2, 2, 2, 2, 2, 0, 2, 0, 0, 2, 2, 2, 0, 0, 0],
+            ["ESCANER", 9, 11, 9, 9, 11, 1, 9, 10, 10, 11, 11, 11, 10, 10, 10],
+            ["CABLE DE ESCANER", 9, 11, 9, 9, 11, 1, 9, 10, 10, 11, 11, 11, 10, 10, 10],
+            ["FORRO DE HAND HELD", 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            ["FORRO IMPRESORA PORTATIL", 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
             ["GAVETA 3NSTAR", 7, 7, 7, 7, 7, 0, 7, 7, 7, 7, 7, 7, 7, 7, 7],
-            ["HAND HELD TC210K", 4, 3, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 2, 2, 2],
+            ["HAND HELD", 4, 3, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 2, 2, 2],
             ["HKA", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
             ["IMPRESORA FISCAL SRP812", 14, 16, 13, 13, 16, 4, 12, 15, 14, 15, 15, 15, 15, 15, 15],
-            ["IMPRESORA PORTATIL ZEBRA ZQ620", 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-            ["LECTORA ZEBRA CC6600", 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            ["IMPRESORA PORTATIL", 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+            ["LECTORA ZEBRA", 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
             ["MERAKI CISCO MX67", 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             ["MONITOR DE ESTACION", 5, 4, 4, 4, 4, 0, 4, 4, 4, 5, 5, 5, 4, 4, 4],
             ["BIOPAGO", 14, 16, 13, 13, 16, 12, 12, 15, 14, 15, 15, 15, 15, 15, 15],
             ["PIN PAD P200", 14, 16, 13, 13, 16, 12, 12, 15, 14, 15, 15, 15, 15, 15, 15],
-            ["PROTECTOR DE PANTALLA HAND HELD TC210K", 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4],
-            ["SERVIDOR DELL R450", 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            ["PROTECTOR DE PANTALLA HAND HELD", 4, 4, 4, 4, 4, 2, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+            ["SERVIDOR", 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             ["SWITCH CISCO 48 PUERTOS", 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1],
             ["TECLADO +MOUSE USB", 4, 4, 4, 4, 4, 0, 4, 4, 4, 5, 5, 5, 4, 4, 4],
             ["TELEFONO IP CISCO 7821", 3, 3, 3, 3, 3, 0, 3, 3, 3, 4, 4, 4, 3, 3, 3],
             ["VISOR DE PRECIO 3NSTAR", 9, 10, 9, 9, 11, 1, 9, 10, 10, 10, 10, 10, 10, 10, 10],
-            ["AUTOSERVICIO", 1, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]
+            ["BIOPAGO 2", 14, 16, 13, 13, 16, 12, 12, 15, 14, 15, 15, 15, 15, 15, 15],
+            ["AUTOSERVICIO", 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1] // Ajustado: 1 en Orinoco hasta Mudanza 3
         ];
 
+        // Costos Unitarios
         const costMapping = {
-            "CABLE EXENTRICO": 20, "CABLE PROLIFIC": 20, "HKA": 435, "IMPRESORA FISCAL SRP812": 722,
-            "IMPRESORA PORTATIL": 550, "VISOR DE PRECIO 3NSTAR": 182, "TUBO DE CAJA": 110, "AUTOSERVICIO": 6234
+            "ACCESS POINT MERAKI": 289.52, "BASE DE LECTORA DE PRECIOS CC6600": 120, "BIOMETRICO ASISTENCIAL": 2148,
+            "CABLE DE GAVETA 2 METROS": 10, "CABLE PINPAD USB": 20, "CABLE USB TIPO-C HAND HELD": 10,
+            "CABLE EXENTRICO": 20, "CABLE PROLIFIC": 20,
+            "CPU CAJA ALL IN ONE 3NSTAR PTE0912": 1534, "CPU ESTACIÓN BEELINK": 190, "ESCANER": 60,
+            "FORRO DE HAND HELD": 25, "FORRO IMPRESORA PORTATIL": 40, "GAVETA 3NSTAR": 90,
+            "HAND HELD": 330, "LECTORA ZEBRA": 410, "MERAKI CISCO MX67": 741, "MONITOR DE ESTACION": 150,
+            "BIOPAGO": 100.44, "PIN PAD P200": 288, "PROTECTOR DE PANTALLA HAND HELD": 25,
+            "SERVIDOR": 3781, "SWITCH CISCO 48 PUERTOS": 1377.9, "TECLADO +MOUSE USB": 20,
+            "TELEFONO IP CISCO 7821": 169, "BIOPAGO 2": 100.44, "HKA": 435, "IMPRESORA FISCAL SRP812": 722,
+            "IMPRESORA PORTATIL": 550, "VISOR DE PRECIO 3NSTAR": 182, "TUBO DE CAJA": 110, "AUTOSERVICIO": 6234,
+            "CPU ESTACIÓN OPTIPLEX 3080": 1100, "CABLE DE ESCANER": 15, "CARGADOR DE CUNA HAND HELD": 45,
+            "CARGADOR DE IMPRESORA PORTATIL": 65, "CARGADOR DE LECTORA DE PRECIOS": 35, "CARGADOR MERAKI": 25, "CUNA DE HANDHELD": 120
+        };
+
+        // Inventario Base (Fijo)
+        const baseInventory = {
+            "ACCESS POINT MERAKI": [21, 0, 18, 21],
+            "BASE DE LECTORA DE PRECIOS CC6600": [36, 0, 5, 35],
+            "BIOMETRICO ASISTENCIAL": [3, 0, 5, 6],
+            "CABLE DE GAVETA 2 METROS": [0, 0, 0, 45],
+            "CABLE EXENTRICO": [150, 0, 0, 88],
+            "CABLE PINPAD USB": [96, 0, 0, 88],
+            "CABLE PROLIFIC": [150, 0, 0, 88],
+            "CABLE USB TIPO-C HAND HELD": [16, 0, 0, 14],
+            "CARGADOR DE CUNA HAND HELD": [16, 0, 0, 14],
+            "CARGADOR DE IMPRESORA PORTATIL": [8, 0, 19, 13],
+            "CARGADOR DE LECTORA DE PRECIOS": [26, 0, 15, 35],
+            "CARGADOR MERAKI": [9, 0, 0, 7],
+            "TUBO DE CAJA": [300, 0, 0, 66],
+            "CPU CAJA ALL IN ONE 3NSTAR PTE0912": [96, 0, 0, 60],
+            "CPU ESTACIÓN OPTIPLEX 3080": [4, 0, 0, 10],
+            "CPU ESTACIÓN BEELINK": [20, 0, 0, 15],
+            "CUNA DE HANDHELD": [16, 0, 0, 12],
+            "ESCANER": [127, 0, 0, 59],
+            "CABLE DE ESCANER": [56, 0, 0, 59],
+            "FORRO DE HAND HELD": [0, 20, 0, 26],
+            "FORRO IMPRESORA PORTATIL": [16, 0, 0, 13],
+            "GAVETA 3NSTAR": [54, 30, 0, 42],
+            "HAND HELD": [4, 20, 0, 25],
+            "HKA": [150, 0, 0, 88],
+            "IMPRESORA FISCAL SRP812": [150, 0, 0, 88],
+            "IMPRESORA PORTATIL": [6, 19, 19, 13],
+            "LECTORA ZEBRA": [32, 10, 15, 35],
+            "MERAKI CISCO MX67": [8, 0, 0, 7],
+            "MONITOR DE ESTACION": [0, 0, 0, 25],
+            "BIOPAGO": [70, 0, 0, 96],
+            "PIN PAD P200": [96, 0, 0, 96],
+            "PROTECTOR DE PANTALLA HAND HELD": [0, 0, 0, 26],
+            "SERVIDOR": [8, 0, 0, 6],
+            "SWITCH CISCO 48 PUERTOS": [4, 5, 0, 7],
+            "TECLADO +MOUSE USB": [0, 0, 0, 24],
+            "TELEFONO IP CISCO 7821": [12, 0, 0, 18],
+            "VISOR DE PRECIO 3NSTAR": [200, 0, 0, 58],
+            "BIOPAGO 2": [150, 0, 0, 97],
+            "AUTOSERVICIO": [0, 9, 0, 5] // Ajustado: Recibidos 9 para cubrir la demanda si fuera necesario, o ajustar segun realidad
         };
 
         let currentFilter = 'all';
         let investmentChartInstance = null;
 
+        // Calcula Plan Proyecto dinámicamente sumando tiendas Orinoco (indice 7) a Mudanza 3 (indice 15)
+        function calculatePlanProject(equipmentName) {
+            const detail = detailedData.find(d => d[0] === equipmentName);
+            if (!detail) return 0;
+            let sum = 0;
+            for (let i = 7; i <= 15; i++) {
+                sum += (detail[i] || 0);
+            }
+            return sum;
+        }
+
+        // Obtiene datos de resumen sincronizados
+        function getSummaryData() {
+            return Object.keys(baseInventory).map(name => {
+                const [init, rec, trans, cons] = baseInventory[name];
+                const plan = calculatePlanProject(name);
+                // Estatus = Disponible (Init + Rec + Trans) - Demanda (Consumo + Plan)
+                const status = (init + rec + trans) - (cons + plan);
+                return [name, init, rec, trans, cons, plan, status];
+            });
+        }
+
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.getElementById(`tab-${tabId}`).classList.add('active');
-            
-            document.getElementById('content-summary').classList.add('hidden');
-            document.getElementById('content-detailed').classList.add('hidden');
-            document.getElementById('content-investment').classList.add('hidden');
-            
+            ['summary', 'detailed', 'investment'].forEach(id => document.getElementById(`content-${id}`).classList.add('hidden'));
             document.getElementById(`content-${tabId}`).classList.remove('hidden');
 
             if (tabId === 'detailed') renderDetailedTable();
             if (tabId === 'investment') renderInvestmentTab();
-        }
-
-        function setFilter(filter) {
-            currentFilter = filter;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById(`btn-${filter}`).classList.add('active');
-            renderSummaryTable();
+            if (tabId === 'summary') renderSummaryTable();
         }
 
         function renderSummaryTable() {
@@ -264,8 +288,8 @@
             const search = document.getElementById('searchInput').value.toLowerCase();
             tbody.innerHTML = '';
 
-            summaryData.forEach(item => {
-                const [name, init, rec, trans, cons, req, pending] = item;
+            getSummaryData().forEach(item => {
+                const [name, init, rec, trans, cons, plan, pending] = item;
                 if (!name.toLowerCase().includes(search)) return;
                 
                 if (currentFilter === 'shortage' && pending >= 0) return;
@@ -273,30 +297,17 @@
 
                 const row = document.createElement('tr');
                 row.className = "hover:bg-gray-50 text-[11px]";
-                
-                let statusText = '';
-                let bgClass = '';
-                let textClass = '';
+                const isShortage = pending < 0;
+                const colorClass = isShortage ? 'text-red-700 bg-red-50 font-bold' : (pending > 0 ? 'text-emerald-700 bg-emerald-50 font-bold' : 'text-gray-400');
 
-                if (pending < 0) {
-                    statusText = `${Math.abs(pending)} (DÉFICIT)`;
-                    bgClass = 'bg-red-50';
-                    textClass = 'text-red-700 font-bold';
-                } else if (pending > 0) {
-                    statusText = `${pending} (SOBRANTE)`;
-                    bgClass = 'bg-cyan-50';
-                    textClass = 'text-cyan-700 font-bold';
-                } else {
-                    statusText = '0 (SALDO)';
-                    bgClass = 'bg-gray-50';
-                    textClass = 'text-gray-400';
-                }
-
-                row.innerHTML = `<td class="px-6 py-3 font-semibold sticky-col">${name}</td>
-                    <td class="text-center">${init}</td><td class="text-center">${rec}</td>
-                    <td class="text-center">${trans}</td><td class="text-center">${cons}</td>
-                    <td class="text-center">${req}</td>
-                    <td class="text-center ${textClass} ${bgClass} border-l border-gray-100">${statusText}</td>`;
+                row.innerHTML = `
+                    <td class="px-6 py-3 font-semibold sticky-col">${name}</td>
+                    <td class="text-center">${init}</td>
+                    <td class="text-center">${rec}</td>
+                    <td class="text-center">${trans}</td>
+                    <td class="text-center">${cons}</td>
+                    <td class="text-center font-bold text-blue-800 bg-blue-50/50">${plan}</td>
+                    <td class="text-center ${colorClass} border-l border-gray-100">${pending}</td>`;
                 tbody.appendChild(row);
             });
         }
@@ -315,13 +326,10 @@
                 
                 let cells = `<td class="px-3 py-3 font-semibold text-left sticky-col">${name}</td>`;
                 for (let i = 1; i < item.length; i++) {
-                    const val = item[i];
-                    // Resaltar cantidades significativas
-                    const bg = val > 10 ? 'bg-blue-50/50 font-semibold' : '';
-                    const color = val === 0 ? 'text-gray-300' : 'text-gray-700';
-                    cells += `<td class="px-1 py-3 ${bg} ${color}">${val}</td>`;
+                    const isPlanTienda = i >= 7;
+                    const bgClass = isPlanTienda ? (name === "AUTOSERVICIO" ? "bg-yellow-50 text-yellow-800 font-bold" : "") : "opacity-30";
+                    cells += `<td class="px-1 py-3 border-x border-gray-50 ${bgClass}">${item[i]}</td>`;
                 }
-                
                 row.innerHTML = cells;
                 tbody.appendChild(row);
             });
@@ -330,96 +338,94 @@
         function renderInvestmentTab() {
             const tbody = document.querySelector('#investmentTable tbody');
             tbody.innerHTML = '';
-            let totalInvestment = 0;
-            let totalSurplus = 0;
+            let totalInv = 0, totalSurp = 0;
 
-            const displayData = summaryData.map(item => {
+            const data = getSummaryData().map(item => {
                 const name = item[0];
-                const qty = item[6];
-                let unitCost = costMapping[name] || 0;
-                
-                const originalCosts = [
-                    ["ACCESS POINT MERAKI", 289.52], ["BASE DE LECTORA DE PRECIOS CC6600", 120], ["BIOMETRICO ASISTENCIAL", 2148],
-                    ["CABLE DE GAVETA 2 METROS", 10], ["CABLE PINPAD USB", 20], ["CABLE USB TIPO-C HAND HELD", 10],
-                    ["CPU CAJA ALL IN ONE 3NSTAR PTE0912", 1534], ["CPU ESTACIÓN BEELINK", 190], ["ESCANER", 60],
-                    ["FORRO DE HAND HELD", 25], ["FORRO IMPRESORA PORTATIL", 40], ["GAVETA 3NSTAR", 90],
-                    ["HAND HELD", 330], ["LECTORA ZEBRA", 410], ["MERAKI CISCO MX67", 741], ["MONITOR DE ESTACION", 150],
-                    ["BIOPAGO", 100.44], ["PIN PAD P200", 288], ["PROTECTOR DE PANTALLA HAND HELD", 25],
-                    ["SERVIDOR", 3781], ["SWITCH CISCO 48 PUERTOS", 1377.9], ["TECLADO +MOUSE USB", 20],
-                    ["TELEFONO IP CISCO 7821", 169], ["BIOPAGO 2", 100.44]
-                ].find(i => i[0] === name);
+                const status = item[6];
+                const cost = costMapping[name] || 0;
+                const units = Math.abs(status);
+                const valorization = units * cost;
 
-                if (originalCosts) unitCost = originalCosts[1];
+                return { name, status, cost, units, valorization };
+            }).filter(i => i.status !== 0);
 
-                const valorization = Math.abs(qty) * unitCost;
-                return { name, unitCost, qty, valorization };
-            }).filter(i => i.valorization > 0);
+            data.forEach(item => {
+                const isShortage = item.status < 0;
+                if (isShortage) {
+                    totalInv += item.valorization;
+                } else {
+                    totalSurp += item.valorization;
+                }
 
-            displayData.forEach(item => {
-                if (item.qty < 0) totalInvestment += item.valorization;
-                else totalSurplus += item.valorization;
+                const colorClass = isShortage ? 'text-red-700 font-bold' : 'text-emerald-700 font-bold';
+                const statusLabel = isShortage ? 'Requerido' : 'Disponible';
 
-                const row = document.createElement('tr');
-                row.className = "hover:bg-gray-50";
-                const isSurplus = item.qty > 0;
-                
-                row.innerHTML = `
-                    <td class="px-6 py-3 font-medium text-gray-700">${item.name}</td>
-                    <td class="px-4 py-3 text-right text-gray-500">$ ${item.unitCost.toLocaleString()}</td>
-                    <td class="px-4 py-3 text-center">${Math.abs(item.qty)}</td>
-                    <td class="px-4 py-3 text-center">
-                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${isSurplus ? 'bg-cyan-100 text-cyan-700' : 'bg-red-100 text-red-700'}">
-                            ${isSurplus ? 'STOCK DISPONIBLE' : 'POR COMPRAR'}
-                        </span>
-                    </td>
-                    <td class="px-4 py-3 text-right font-bold ${isSurplus ? 'text-cyan-700 bg-cyan-50/20' : 'text-red-700 bg-red-50/20'}">$ ${item.valorization.toLocaleString()}</td>
-                `;
-                tbody.appendChild(row);
+                tbody.innerHTML += `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-3 font-medium text-gray-700">${item.name}</td>
+                        <td class="px-4 py-3 text-right text-gray-500">$ ${item.cost.toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+                        <td class="px-4 py-3 text-center">
+                            <span class="${colorClass}">${item.units}</span>
+                            <span class="text-[9px] uppercase opacity-50 block">${statusLabel}</span>
+                        </td>
+                        <td class="px-4 py-3 text-right bg-gray-50/50">
+                            <span class="${colorClass}">$ ${item.valorization.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                        </td>
+                    </tr>`;
             });
 
-            document.getElementById('totalInvestmentLabel').innerText = `$ ${totalInvestment.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-            document.getElementById('totalSurplusLabel').innerText = `$ ${totalSurplus.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-
-            renderChart(displayData);
+            document.getElementById('totalInvestmentLabel').innerText = `$ ${totalInv.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            document.getElementById('totalSurplusLabel').innerText = `$ ${totalSurp.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            renderChart(data);
         }
 
         function renderChart(data) {
             const ctx = document.getElementById('investmentChart').getContext('2d');
             if (investmentChartInstance) investmentChartInstance.destroy();
 
-            const topShortage = data.filter(i => i.qty < 0).sort((a,b) => b.valorization - a.valorization).slice(0, 5);
-            const topSurplus = data.filter(i => i.qty > 0).sort((a,b) => b.valorization - a.valorization).slice(0, 5);
+            const top = data.sort((a,b) => b.valorization - a.valorization).slice(0, 12);
             
-            const combinedLabels = [...topShortage.map(i => i.name), ...topSurplus.map(i => i.name)];
-            const shortageValues = [...topShortage.map(i => i.valorization), ...topSurplus.map(i => 0)];
-            const surplusValues = [...topShortage.map(i => 0), ...topSurplus.map(i => i.valorization)];
-
             investmentChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: combinedLabels,
-                    datasets: [
-                        { label: 'Déficit (Inversión)', data: shortageValues, backgroundColor: '#ef4444', borderRadius: 4 },
-                        { label: 'Sobrante (Stock)', data: surplusValues, backgroundColor: '#0891b2', borderRadius: 4 }
-                    ]
+                    labels: top.map(i => i.name),
+                    datasets: [{
+                        label: 'Impacto Económico ($)',
+                        data: top.map(i => i.valorization),
+                        backgroundColor: top.map(i => i.status < 0 ? '#dc2626' : '#10b981'),
+                        borderRadius: 4
+                    }]
                 },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
+                options: { 
+                    indexAxis: 'y', 
+                    responsive: true, 
                     maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } },
-                    scales: { 
-                        x: { stacked: true, ticks: { font: { size: 9 } } },
-                        y: { stacked: true, ticks: { font: { size: 9 } } }
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ` Valor: $${ctx.raw.toLocaleString()}`
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                        y: { ticks: { font: { size: 9 } } }
                     }
                 }
             });
         }
 
+        function setFilter(f) { 
+            currentFilter = f; 
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${f}`).classList.add('active');
+            renderSummaryTable(); 
+        }
+
         document.getElementById('searchInput').addEventListener('input', renderSummaryTable);
-        window.onload = () => {
-            renderSummaryTable();
-        };
+        window.onload = renderSummaryTable;
     </script>
 </body>
 </html>
